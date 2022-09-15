@@ -1,17 +1,51 @@
 <!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./echarts.min.js"></script>
+    <script src="./echarts-gl.min.js"></script>
+    <script src="./common.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/all.css">
+</head>
+<body>
+<!--第一行-->
+<div class="line1">
+    <!--    分类表格-->
+    <div id="cat_table">
+    </div>
+    <!--    分时图-->
+    <div id="time_chart">
+        <div class="chart_title">趋势图</div>
+        <div id="time_echarts"></div>
+    </div>
+</div>
+<!--第二行-->
+<div class="line2">
+    <!--    柱状图-->
+    <div id="bar_chart">
+    </div>
+
+    <!--    热力图-->
+    <div id="hot_chart">
+    </div>
+    <!--    数据图-->
+    <div id="data_chart">
+    </div>
+</div>
+<div id="form_dialog"></div>
+<script src="time_chart.js"></script>
+<script src="bar_chart.js"></script>
+<script src="hot_chart.js"></script>
+<script>
+    window.onresize = function () {
+        time_echarts.resize();
+        bar_echarts.resize();
+        hot_echarts.resize();
+        if (formLineChart != null) {
+            formLineChart.resize();
+        }
+    };
+</script>
+</body>
 </html>
