@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="./qwebchannel.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./echarts-gl.min.js"></script>
     <script src="./common.js"></script>
@@ -10,42 +11,107 @@
 </head>
 <body>
 <!--第一行-->
+<div id="line_header">
+</div>
+
 <div class="line1">
     <!--    分类表格-->
-    <div id="cat_table">
+    <div id="cat_table" class="my_bg_white my_boder_radius ">
     </div>
     <!--    分时图-->
-    <div id="time_chart">
-        <div class="chart_title">趋势图</div>
+    <div id="time_chart" class="my_bg_white my_boder_radius">
         <div id="time_echarts"></div>
     </div>
 </div>
 <!--第二行-->
 <div class="line2">
     <!--    柱状图-->
-    <div id="bar_chart">
+    <div id="bar_chart" class="my_bg_white my_boder_radius">
     </div>
 
     <!--    热力图-->
-    <div id="hot_chart">
+    <div id="hot_chart" class="my_bg_white my_boder_radius">
     </div>
     <!--    数据图-->
-    <div id="data_chart">
+    <div id="data_chart" class="my_bg_white my_boder_radius">
     </div>
 </div>
 <div id="form_dialog"></div>
-<script src="time_chart.js"></script>
+<script>
+    var G_sample_status = 'close'
+    var G_signal_list = []
+    var G_selectedChannelIdx = 0
+    var G_mode = 'browser';
+    // var G_page_type = 'sample'//是采集页面还是查看页面
+    var G_page_type = 'see'//是采集页面还是查看页面
+    var G_data_sublist = [];//柱状图和热力图用到的数据
+
+    //设置页面的类型，由 qt 设置
+    function setPageType(type) {
+        console.log("转换 page type:", type)
+        window.G_page_type = type;
+    }
+
+    if (window.qt) {
+        console.log("是 QT 环境")
+        G_mode = 'qt';
+        new QWebChannel(qt.webChannelTransport, function (channel) {
+            window.qt_main_w = channel.objects.main_w;
+            window.qt_javaClient = channel.objects.javaClient;
+            window.qt_jsBridge = channel.objects.jsBridge;
+        })
+    }
+
+</script>
 <script src="bar_chart.js"></script>
 <script src="hot_chart.js"></script>
+<script src="time_chart.js"></script>
 <script>
     window.onresize = function () {
         time_echarts.resize();
         bar_echarts.resize();
         hot_echarts.resize();
-        if (formLineChart != null) {
+        if (formLineChart) {
             formLineChart.resize();
         }
     };
+    if (window.qt) {
+        new QWebChannel(qt.webChannelTransport, function (channel) {
+            window.qt_main_w = channel.objects.main_w;
+            window.qt_javaClient = channel.objects.javaClient;
+            window.qt_jsBridge = channel.objects.jsBridge;
+
+            channel.objects.jsBridge.new_signal_come.connect(function (param) {
+                console.log("js 收到 new_signal_come  参数", param);
+                if (param['list']) {
+                    G_signal_list = G_signal_list.concat(param['list'])
+                    refresh_time_chart();
+                    refresh3DBar();
+                    refreshHotChart();
+                }
+            });
+        })
+    }
+
+    if (window.G_mode === 'browser') {
+        console.log("********************************************")
+        fetch("http://localhost:7088/data/sample", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                sampleId: 1,
+                lastId: 0,
+                limit: 5000
+            })
+        }).then(res => {
+            res.json().then(jj => {
+                window.G_signal_list = jj['list']
+                refresh_time_chart();
+                refresh3DBar();
+                refreshHotChart();
+            });
+        });
+    }
 </script>
 </body>
 </html>
