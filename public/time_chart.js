@@ -4,6 +4,17 @@ var time_echarts = echarts.init(document.getElementById('time_echarts'), null, {
 
 var last_brushed_flag = false
 
+// 0: `rgba(255, 153, 0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
+//     1: `rgba(0,0,255, ${index === selectedSeriesIndex ? 1 : 0.4})`,
+//     2: `rgba(255,0,0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
+//     3: `rgba(0,255,0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
+var G_time_chart_color = [
+    ['rgba(255, 153, 0,1)', 'rgba(255, 153, 0,0.2)'],
+    ['rgba(0,0,255,1)', 'rgba(0,0,255,0.2)'],
+    ['rgba(255,0,0,1)', 'rgba(255,0,0,0.2)'],
+    ['rgba(0,255,0,1)', 'rgba(0,255,0,0.2)'],
+]
+
 var selected_channel_index = 0;
 var time_chart_option = {
         animation: true,
@@ -144,6 +155,9 @@ var time_chart_option = {
                 data: [],
                 xAxisIndex: 0,
                 yAxisIndex: 0,
+                lineStyle: {
+                    color: G_time_chart_color[0][0]
+                }
             }, {
                 name: 'data2',
                 type: 'line',
@@ -154,6 +168,9 @@ var time_chart_option = {
                 emphasis: {
                     focus: 'series'
                 },
+                lineStyle: {
+                    color: G_time_chart_color[1][0]
+                }
             }, {
                 name: 'data3',
                 type: 'line',
@@ -161,6 +178,9 @@ var time_chart_option = {
                 data: [],
                 xAxisIndex: 2,
                 yAxisIndex: 2,
+                lineStyle: {
+                    color: G_time_chart_color[2][0]
+                }
             }, {
                 name: 'data4',
                 type: 'line',
@@ -168,6 +188,9 @@ var time_chart_option = {
                 data: [],
                 xAxisIndex: 3,
                 yAxisIndex: 3,
+                lineStyle: {
+                    color: G_time_chart_color[3][0]
+                }
             }, {
                 name: 'data5',
                 type: 'line',
@@ -205,10 +228,32 @@ time_echarts.getZr().on('click', param => {
         return
     }
     console.log("点击通道", index)
+
+    window.G_selectedChannelIdx = index;
+
+    let series_color = []
+    for (let i = 0; i < 4; i++) {
+        let color = G_time_chart_color[i][1];
+        if (index === i) {
+            color = G_time_chart_color[i][0];
+        }
+        series_color.push({
+            lineStyle: {
+                color: color
+            }
+        })
+    }
+    time_echarts.setOption({
+        series: series_color
+    });
     // 点击相同通道，不处理
     if (index === selected_channel_index) {
+        console.log("点击相同通道", index, "不处理")
         return;
     }
+    window.refresh3DBar()
+    window.refreshHotChart()
+
     selected_channel_index = index
 })
 

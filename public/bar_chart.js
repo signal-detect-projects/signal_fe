@@ -4,41 +4,36 @@ var phases_arr = []
 for (var i = 0; i <= 360; i++) {
     phases_arr.push(i)
 }
-var bar_data_2 = []
-let last_x = 0
-for (var i = 0; i < 20; i++) {
-    if (i > 0) {
-        last_x = last_x + Math.round(Math.random() * 10)
-    }
-    bar_data_2.push([last_x, Math.round(Math.random() * 360), Math.round(Math.random() * 50 + 100)])
-}
-
-var sin_data = []
-for (var i = 0; i < 360; i++) {
-    sin_data.push([0, i, 150 * Math.sin(i / 180 * Math.PI)])
-}
+// var bar_data_2 = []
+// let last_x = 0
+// for (var i = 0; i < 20; i++) {
+//     if (i > 0) {
+//         last_x = last_x + Math.round(Math.random() * 10)
+//     }
+//     bar_data_2.push([last_x, Math.round(Math.random() * 360), Math.round(Math.random() * 50 + 100)])
+// }
 
 
 var bar_option = {
     tooltip: {},
-    // visualMap: {
-    //     max: 20,
-    //     inRange: {
-    //         color: [
-    //             '#313695',
-    //             '#4575b4',
-    //             '#74add1',
-    //             '#abd9e9',
-    //             '#e0f3f8',
-    //             '#ffffbf',
-    //             '#fee090',
-    //             '#fdae61',
-    //             '#f46d43',
-    //             '#d73027',
-    //             '#a50026'
-    //         ]
-    //     }
-    // },
+    visualMap: {
+        // max: 20,
+        // inRange: {
+        //     color: [
+        //         '#313695',
+        //         '#4575b4',
+        //         '#74add1',
+        //         '#abd9e9',
+        //         '#e0f3f8',
+        //         '#ffffbf',
+        //         '#fee090',
+        //         '#fdae61',
+        //         '#f46d43',
+        //         '#d73027',
+        //         '#a50026'
+        //     ]
+        // }
+    },
     xAxis3D: {
         name: '时间',
         // type: 'category',
@@ -137,14 +132,28 @@ var bar_option = {
 var bar_echarts = echarts.init(document.getElementById('bar_chart'), null, {renderer: 'canvas'});
 bar_echarts.setOption(bar_option);
 
-var G_bar_left_t = 0 //
+var G_bar_left_t = 0 // 下一帧蕞左边的时间
 var G_bar_left_idx = 0//记录每一帧最左边的下标
 var G_bar_timeout = 1000 //刷新每一帧的interval;
 var G_bar_speed = 5 //每秒向左边走多少 秒的距离
 var G_bar_data = []//全局 的 bar data
 var G_bar_x_len = 60//x轴横跨的时间范围
 
+var G_setIntevalHandle = null
+
 function barMove() {
+    // console.log("barMove()")
+    //计算最大的C值
+    let c_max = 0;
+    let idx_key = "c" + (window.G_selectedChannelIdx + 1)
+    const all_data_list = window.G_signal_list
+    for (let j = 0; j < all_data_list.length; j++) {
+        let c = all_data_list[j][idx_key]
+        if (c) {
+            c_max = Math.max(c_max, c)
+        }
+    }
+
     let tmp_data = []
     G_bar_left_t = G_bar_left_t + G_bar_speed * G_bar_timeout;
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
@@ -170,6 +179,10 @@ function barMove() {
             min: "'" + G_bar_left_t + "'",
             max: "'" + bar_right_t + "'",
         },
+        visualMap: {
+            min: 0,
+            max: c_max
+        },
         series: [
             {
                 data: tmp_data
@@ -179,6 +192,9 @@ function barMove() {
 }
 
 function refresh3DBar() {
+    if (G_setIntevalHandle !== undefined && G_setIntevalHandle != null) {
+        clearInterval(G_setIntevalHandle)
+    }
     let list = []
     console.log("refresh3DBar,状态:", window.G_page_type)
     if (window.G_page_type === 'sample') {
@@ -250,7 +266,7 @@ function refresh3DBar() {
             }
         ]
     })
-    setInterval("barMove()", G_bar_timeout)
+    G_setIntevalHandle = setInterval("barMove()", G_bar_timeout)
 }
 
 
