@@ -4,35 +4,27 @@ var phases_arr = []
 for (var i = 0; i <= 360; i++) {
     phases_arr.push(i)
 }
-// var bar_data_2 = []
-// let last_x = 0
-// for (var i = 0; i < 20; i++) {
-//     if (i > 0) {
-//         last_x = last_x + Math.round(Math.random() * 10)
-//     }
-//     bar_data_2.push([last_x, Math.round(Math.random() * 360), Math.round(Math.random() * 50 + 100)])
-// }
-
 
 var bar_option = {
     tooltip: {},
+    animation: false,
     visualMap: {
-        // max: 20,
-        // inRange: {
-        //     color: [
-        //         '#313695',
-        //         '#4575b4',
-        //         '#74add1',
-        //         '#abd9e9',
-        //         '#e0f3f8',
-        //         '#ffffbf',
-        //         '#fee090',
-        //         '#fdae61',
-        //         '#f46d43',
-        //         '#d73027',
-        //         '#a50026'
-        //     ]
-        // }
+        show: false,
+        inRange: {
+            color: [
+                '#313695',
+                '#4575b4',
+                '#74add1',
+                '#3da87b',
+                '#145064',
+                '#c0c061',
+                '#91772c',
+                '#fdae61',
+                '#f46d43',
+                '#d73027',
+                '#a50026'
+            ]
+        }
     },
     xAxis3D: {
         name: '时间',
@@ -44,7 +36,7 @@ var bar_option = {
         min: 'dataMin',
         max: 'dataMax',
         axisLabel: {
-            show: false, // 不显示坐标轴上的文字
+            show: true, // 不显示坐标轴上的文字
         },
         splitArea: {
             show: true
@@ -108,24 +100,7 @@ var bar_option = {
                 borderWidth: 1
             },
             shading: 'lambert',
-            // emphasis: {
-            //     label: {
-            //         fontSize: 20,
-            //         color: '#900'
-            //     },
-            //     itemStyle: {
-            //         color: '#900'
-            //     }
-            // }
         },
-        // {
-        //     type: 'line3D',
-        //     data: sin_data.map(function (item) {
-        //         return {
-        //             value: [0, item[1], item[2]]
-        //         };
-        //     }),
-        // },
     ]
 };
 
@@ -134,15 +109,18 @@ bar_echarts.setOption(bar_option);
 
 var G_bar_left_t = 0 // 下一帧蕞左边的时间
 var G_bar_left_idx = 0//记录每一帧最左边的下标
-var G_bar_timeout = 1000 //刷新每一帧的interval;
-var G_bar_speed = 5 //每秒向左边走多少 秒的距离
+var G_bar_right_idx = 0
+
+var G_bar_timeout = 100 //刷新每一帧的interval;
+var G_bar_speed = 2000 //每秒向左边走多少 秒的距离  2000/(1000/100)
 var G_bar_data = []//全局 的 bar data
 var G_bar_x_len = 60//x轴横跨的时间范围
 
 var G_setIntevalHandle = null
 
+// 实时最新的 phase 偏移 和  通道
 function barMove() {
-    // console.log("barMove()")
+    // console.log("barMove(),G_bar_right_idx", G_bar_right_idx, "G_bar_data.length", G_bar_data.length)
     //计算最大的C值
     let c_max = 0;
     let idx_key = "c" + (window.G_selectedChannelIdx + 1)
@@ -153,17 +131,30 @@ function barMove() {
             c_max = Math.max(c_max, c)
         }
     }
-
     let tmp_data = []
-    G_bar_left_t = G_bar_left_t + G_bar_speed * G_bar_timeout;
+    //如果现在在 bar_right_t 右边暂时没有数据了，咱们就是说，先不动
+    if (G_bar_right_idx >= G_bar_data.length - 1) {
+        console.log("右边没有更多数据，停止流动")
+        // 没有新数据的情况下仍然要刷新，因为可能选择通道变了
+    } else {
+        G_bar_left_t = G_bar_left_t + G_bar_speed / (1000 / G_bar_timeout);//delta*(1000/100) = speed
+    }
+    console.log(new Date(G_bar_left_t).Format("yyyy-MM-dd hh:mm:ss"))
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
-    // console.log('bar_right_t', bar_right_t)
+
     for (let i = G_bar_left_idx; i < G_bar_data.length; i++) {
         if (G_bar_data[i]['ts'] > bar_right_t) {
             break;
         }
+        let item = G_bar_data[i]
+        let c_v = item['c_arr'][window.G_selectedChannelIdx];
         if (G_bar_data[i]['ts'] >= G_bar_left_t) {
-            tmp_data.push(G_bar_data[i])
+            tmp_data.push({
+                idx: item['idx'],
+                ts: item['ts'],
+                value: [item['ts'], window.fixPhase(item['phase']), window.fixC(c_v)]
+            })
+            G_bar_right_idx = i;
         }
     }
     if (tmp_data.length === 0) {
@@ -171,17 +162,10 @@ function barMove() {
         return
     }
     G_bar_left_idx = tmp_data[0]['idx']
-    // console.log("bar+0", G_bar_left_t, bar_right_t)
-    // console.log("=====", tmp_data[0]['ts'], tmp_data[tmp_data.length - 1]['ts'])
-
     bar_echarts.setOption({
         xAxis3D: {
             min: "'" + G_bar_left_t + "'",
             max: "'" + bar_right_t + "'",
-        },
-        visualMap: {
-            min: 0,
-            max: c_max
         },
         series: [
             {
@@ -191,33 +175,36 @@ function barMove() {
     })
 }
 
+/**
+ * 刷新图表，调用时机：
+ * 1：采集的时候，第一次采集到数据调用
+ * 2：查看的时候，
+ */
 function refresh3DBar() {
     if (G_setIntevalHandle !== undefined && G_setIntevalHandle != null) {
         clearInterval(G_setIntevalHandle)
     }
     let list = []
-    console.log("refresh3DBar,状态:", window.G_page_type)
+    console.log("refresh3DBar被调用,状态:", window.G_page_type)
     if (window.G_page_type === 'sample') {
         list = window.G_signal_list
     } else {//查看
         if (window.G_data_sublist.length === 0) {
-            window.G_data_sublist = window.G_signal_list
+            window.G_data_sublist = window.G_catfilter_sublist
         }
         list = window.G_data_sublist
     }
     if (list.length === 0) {
         return;
     }
-    let channelIdx = window.G_selectedChannelIdx;
-    let channel_key = 'c' + (channelIdx + 1);
-
+    //缩小gap的逻辑
     let gap_arr = []
     for (let i = 1; i < list.length; i++) {
         let big = list[i]['ts']
         let small = list[i - 1]['ts']
         let gap_len = big - small
-        if (gap_len > 10) {
-            gap_len = 2
+        if (gap_len > 10000) {
+            gap_len = 2000
         }
         gap_arr.push(gap_len)
     }
@@ -226,7 +213,6 @@ function refresh3DBar() {
     for (let i = 0; i < list.length; i++) {
         let item = list[i]
         let phase = item['phase']
-        let c_value = item[channel_key]
         let t_value = 0
         if (i === 0) {
             t_value = item['ts']
@@ -236,8 +222,9 @@ function refresh3DBar() {
         last_ts = t_value;
         res_data.push({
             idx: i,
-            ts: item['ts'],
-            value: [t_value, phase, c_value]
+            ts: t_value,
+            phase: phase,
+            c_arr: [item['c1'], item['c2'], item['c3'], item['c4']],
         })
     }
     G_bar_data = res_data
@@ -245,14 +232,20 @@ function refresh3DBar() {
     G_bar_left_idx = 0
     // console.log("G_idx", G_bar_left, G_bar_right)
     // console.log(res_data)
-    let bar_data = []
+    let tmp_data = []
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
-
     for (let i = G_bar_left_idx; i < G_bar_data.length; i++) {
         if (G_bar_data[i]['ts'] > bar_right_t) {
             break;
         }
-        bar_data.push(res_data[i])
+        let item = G_bar_data[i]
+        let c_v = item['c_arr'][window.G_selectedChannelIdx];
+        tmp_data.push({
+            idx: item['idx'],
+            ts: item['ts'],
+            value: [item['ts'], window.fixPhase(item['phase']), window.fixC(c_v)]
+        })
+        G_bar_right_idx = i;
     }
 
     bar_echarts.setOption({
@@ -260,13 +253,56 @@ function refresh3DBar() {
             min: "'" + G_bar_left_t + "'",
             max: "'" + bar_right_t + "'",
         },
+        visualMap: {
+            min: 0,
+            max: 2000
+        },
         series: [
             {
-                data: bar_data
+                data: tmp_data
             }
-        ]
+        ],
     })
     G_setIntevalHandle = setInterval("barMove()", G_bar_timeout)
 }
 
+/**
+ * 第一次添加数据的时候不能调
+ * @param newData
+ */
+function addNewData2BarChart(newData) {
+    console.log("addNewData2BarChart(newData)")
+    let gap_arr = []
+    for (let i = 1; i < newData.length; i++) {
+        let big = newData[i]['ts']
+        let small = newData[i - 1]['ts']
+        let gap_len = big - small
+        if (gap_len > 10000) {
+            gap_len = 2000
+        }
+        gap_arr.push(gap_len)
+    }
+    let first_ts = newData[0]['ts']
+    if (G_bar_data.length !== 0) {
+        first_ts = G_bar_data[G_bar_data.length - 1]['ts'] + 2
+    }
+    let last_ts = null;
+    let old_g_bar_data_len = G_bar_data.length
+    for (let i = 0; i < newData.length; i++) {
+        let item = newData[i]
+        let t_value = 0
+        if (i === 0) {
+            t_value = first_ts
+        } else {
+            t_value = last_ts + gap_arr[i - 1];
+        }
+        G_bar_data.push({
+            idx: old_g_bar_data_len + i,
+            ts: t_value,
+            phase: item['phase'],
+            c_arr: [item['c1'], item['c2'], item['c3'], item['c4']],
+        })
+        last_ts = t_value;
+    }
+}
 

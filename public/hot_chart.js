@@ -22,7 +22,7 @@ var hot_option = {
         },
     },
     visualMap: {
-        // show: false,
+        show: false,
         // type: 'piecewise',
         type: 'continuous',
         min: 0,
@@ -31,7 +31,7 @@ var hot_option = {
         // top: 'center',
         calculable: true,
         realtime: false,
-        // splitNumber: 8,
+        splitNumber: 8,
         // inRange: {
         //     color: [
         //         '#313695',
@@ -76,7 +76,7 @@ function refreshHotChart() {
         list = window.G_signal_list
     } else {//查看
         if (window.G_data_sublist.length === 0) {
-            window.G_data_sublist = window.G_signal_list;
+            window.G_data_sublist = window.G_catfilter_sublist;
         }
         list = window.G_data_sublist
     }
@@ -133,7 +133,6 @@ function refreshHotChart() {
             G_Hot_numMax = Math.max(G_Hot_numMax, matrix[i][j])
         }
     }
-    // console.log("chart_data", chart_data)
     hot_echarts.setOption({
         xAxis: {
             data: x_data

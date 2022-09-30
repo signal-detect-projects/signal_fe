@@ -43,13 +43,32 @@
     var G_selectedChannelIdx = 0
     var G_mode = 'browser';
     // var G_page_type = 'sample'//是采集页面还是查看页面
-    var G_page_type = 'see'//是采集页面还是查看页面
+    var G_page_type = 'sample'//是采集页面还是查看页面
     var G_data_sublist = [];//柱状图和热力图用到的数据
+    var G_catfilter_sublist = [] // 分类筛选过后的给热力图用的
+    var G_unit = 0 // 全局的单位配置，0：mV, 1:db
+    var G_phase_offset = 0 // 相位偏移
+    var G_filter_catIds = [] //筛选分类
 
-    //设置页面的类型，由 qt 设置
-    function setPageType(type) {
-        console.log("转换 page type:", type)
-        window.G_page_type = type;
+    function fixPhase(ph) {
+        let np = ph + G_phase_offset
+        if (np < 0) {
+            return np + 360;
+        }
+        if (np >= 360) {
+            return np - 360;
+        }
+        return np;
+    }
+
+    function fixC(cv) {
+        if (cv === undefined || cv === null) {
+            return cv;
+        }
+        if (G_unit === 0) {
+            return cv;
+        }
+        return 20 * Math.log10(0.2 * cv) - 80;
     }
 
     if (window.qt) {
@@ -71,10 +90,51 @@
         time_echarts.resize();
         bar_echarts.resize();
         hot_echarts.resize();
-        if (formLineChart) {
+        if (formLineChart !== undefined && formLineChart !== null) {
             formLineChart.resize();
         }
     };
+
+    function update_G_catfilter_sublist() {
+        console.log("update_G_catfilter_sublist()")
+        if (window.G_signal_list.length === 0) {
+            return;
+        }
+        if (window.G_filter_catIds.length === 0) {
+            console.log("G_filter_catIds 为空，直接赋值")
+            window.G_catfilter_sublist = window.G_signal_list
+            return;
+        }
+        console.log(window.G_signal_list.length);
+        let res_arr = []
+        for (let i = 0; i < window.G_signal_list.length; i++) {
+            let item = window.G_signal_list[i];
+            if (item['categoryId'] !== null && window.G_filter_catIds.includes(item['categoryId'])) {
+                res_arr.push(item)
+            }
+        }
+        window.G_catfilter_sublist = res_arr
+        G_data_sublist = res_arr
+    }
+
+    //设置页面的类型，由 qt 设置
+    function setPageType(type) {
+        console.log("转换 page type:", type)
+        window.G_page_type = type;
+        if (type === 'see') {
+            time_echarts.dispatchAction({
+                type: 'takeGlobalCursor',
+                key: 'brush',
+                brushOption: {
+                    brushType: 'lineX',
+                    brushMode: 'single',
+                    gridIndex: 4
+                },
+            });
+        }
+    }
+
+    var G_first_come_data = true;
     if (window.qt) {
         new QWebChannel(qt.webChannelTransport, function (channel) {
             window.qt_main_w = channel.objects.main_w;
@@ -83,35 +143,87 @@
 
             channel.objects.jsBridge.new_signal_come.connect(function (param) {
                 console.log("js 收到 new_signal_come  参数", param);
-                if (param['list']) {
-                    G_signal_list = G_signal_list.concat(param['list'])
-                    refresh_time_chart();
-                    refresh3DBar();
-                    refreshHotChart();
-                }
+                var json = JSON.parse(param);
+                window.update_table_data(json['sample']['location']);
+                add_data_main(json)
             });
         })
     }
 
+    function add_data_main(json) {
+        var new_list = json['list']
+        if (new_list !== undefined && new_list != null && new_list.length > 0) {
+            console.log("js 接受到新数据", new_list.length, "个")
+            G_signal_list = G_signal_list.concat(json['list'])
+            if (window.G_page_type === 'sample') {
+                refresh_time_chart();
+                refreshHotChart();
+                if (G_first_come_data) {
+                    refresh3DBar()
+                    G_first_come_data = false;
+                } else {
+                    addNewData2BarChart(new_list)
+                }
+            } else if (window.G_page_type === 'see') {
+                G_catfilter_sublist = G_signal_list
+                refresh_time_chart();
+                refresh3DBar()
+                refreshHotChart();
+            } else {
+                console.log("!!! window.G_page_type 错误  ")
+            }
+        }
+    }
+
+
     if (window.G_mode === 'browser') {
         console.log("********************************************")
+
+    }
+
+    var G_global_last_id = 0
+
+    function fetch_data() {
+        console.log("G_global_last_id", G_global_last_id)
         fetch("http://localhost:7088/data/sample", {
             method: "POST",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 sampleId: 1,
-                lastId: 0,
+                lastId: G_global_last_id,
                 limit: 5000
             })
         }).then(res => {
+            console.log("新采集数据哈哈哈")
             res.json().then(jj => {
-                window.G_signal_list = jj['list']
-                refresh_time_chart();
-                refresh3DBar();
-                refreshHotChart();
+                window.update_table_data(jj['sample']['location']);
+                if (jj['list'].length === 0) {
+                    clearInterval(G_fetch_dataHandle)
+                }
+                G_global_last_id = jj['lastId']
+                add_data_main(jj)
             });
         });
     }
+
+    // 重新清理数据，便于新的采集
+    function clearDataForNewSample() {
+        console.log("js clearDataForNewSample 清理数据，为这次采集")
+        G_signal_list = []
+        G_data_sublist = []
+        G_bar_left_t = 0
+        G_bar_left_idx = 0
+        G_bar_right_idx = []
+        G_bar_data = []
+        G_setIntevalHandle = null
+        G_first_come_data = true;
+    }
+
+    setPageType('see')
+    fetch_data()
+    // G_fetch_dataHandle = setInterval("fetch_data()", 5000)
+
+
 </script>
 </body>
 </html>

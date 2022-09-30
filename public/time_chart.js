@@ -4,10 +4,6 @@ var time_echarts = echarts.init(document.getElementById('time_echarts'), null, {
 
 var last_brushed_flag = false
 
-// 0: `rgba(255, 153, 0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
-//     1: `rgba(0,0,255, ${index === selectedSeriesIndex ? 1 : 0.4})`,
-//     2: `rgba(255,0,0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
-//     3: `rgba(0,255,0, ${index === selectedSeriesIndex ? 1 : 0.4})`,
 var G_time_chart_color = [
     ['rgba(255, 153, 0,1)', 'rgba(255, 153, 0,0.2)'],
     ['rgba(0,0,255,1)', 'rgba(0,0,255,0.2)'],
@@ -17,199 +13,206 @@ var G_time_chart_color = [
 
 var selected_channel_index = 0;
 var time_chart_option = {
-        animation: true,
-        toolbox: {
-            show: false,
+    animation: true,
+    toolbox: {
+        show: false,
+    },
+    brush: {
+        // xAxisIndex: "all",
+        brushLink: "all",
+        // 设置框选样式
+        brushStyle: {
+            borderWidth: 1,
+            color: 'rgba(120,140,180,0.3)',
+            borderColor: 'rgba(0,0,0,.65)'
         },
-        brush: {
-            // xAxisIndex: "all",
-            brushLink: "all",
-            // 设置框选样式
-            brushStyle: {
-                borderWidth: 1,
-                color: 'rgba(120,140,180,0.3)',
-                borderColor: 'rgba(0,0,0,.65)'
+        xAxisIndex: 4,
+        yAxisIndex: 4,
+    },
+    grid: [
+        {
+            top: '10%',
+            height: '20%',
+            width: '100%'
+        }, {
+            top: '30%',
+            height: '20%',
+            width: '100%'
+        }, {
+            top: '50%',
+            height: '20%',
+            width: '100%'
+        }, {
+            top: '70%',
+            height: '20%',
+            width: '100%'
+        },
+        {
+            top: '10%',
+            height: '80%',
+            width: '100%',
+            z: 10
+        }
+    ],
+    xAxis: [
+        {
+            type: 'time',
+            min: 'dataMin',
+            show: false,
+            gridIndex: 0
+        }, {
+            type: 'time',
+            min: 'dataMin',
+            show: false,
+            gridIndex: 1
+        }, {
+            type: 'time',
+            min: 'dataMin',
+            show: false,
+            gridIndex: 2
+        }, {
+            type: 'time',
+            min: 'dataMin',
+            show: true,
+            gridIndex: 3
+        }, {
+            type: 'time',
+            min: 'dataMin',
+            show: false,
+            gridIndex: 4
+        },
+    ],
+    dataZoom: [
+        {
+            type: 'inside',
+            xAxisIndex: "all",
+        },
+    ],
+    yAxis: [
+        {
+            type: 'value',
+            splitLine: {
+                show: false
             },
+            axisLabel: {
+                show: true, // 不显示坐标轴上的文字
+            },
+            show: true,
+            gridIndex: 0,
+            max: 'dataMax',
+        },
+        {
+            type: 'value',
+            splitLine: {
+                show: false
+            },
+            axisLabel: {
+                show: true, // 不显示坐标轴上的文字
+            },
+            show: true,
+            gridIndex: 1,
+            max: 'dataMax',
+        }, {
+            type: 'value',
+            splitLine: {
+                show: false
+            },
+            axisLabel: {
+                show: true, // 不显示坐标轴上的文字
+            },
+            show: true,
+            gridIndex: 2,
+            max: 'dataMax',
+        }, {
+            type: 'value',
+            splitLine: {
+                show: false
+            },
+            axisLabel: {
+                show: true, // 不显示坐标轴上的文字
+            },
+            show: true,
+            gridIndex: 3,
+            max: 'dataMax',
+        }, {
+            type: 'value',
+            splitLine: {
+                show: false
+            },
+            axisLabel: {
+                show: false, // 不显示坐标轴上的文字
+            },
+            show: true,
+            gridIndex: 4
+        },
+    ],
+
+    series: [
+        {
+            name: 'data1',
+            type: 'line',
+            showSymbol: false,
+            data: [],
+            xAxisIndex: 0,
+            yAxisIndex: 0,
+            lineStyle: {
+                color: G_time_chart_color[0][0]
+            }
+        }, {
+            name: 'data2',
+            type: 'line',
+            showSymbol: false,
+            data: [],
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            emphasis: {
+                focus: 'series'
+            },
+            lineStyle: {
+                color: G_time_chart_color[1][0]
+            }
+        }, {
+            name: 'data3',
+            type: 'line',
+            showSymbol: false,
+            data: [],
+            xAxisIndex: 2,
+            yAxisIndex: 2,
+            lineStyle: {
+                color: G_time_chart_color[2][0]
+            }
+        }, {
+            name: 'data4',
+            type: 'line',
+            showSymbol: false,
+            data: [],
+            xAxisIndex: 3,
+            yAxisIndex: 3,
+            lineStyle: {
+                color: G_time_chart_color[3][0]
+            }
+        }, {
+            name: 'data5',
+            type: 'line',
+            showSymbol: false,
+            data: [],
             xAxisIndex: 4,
             yAxisIndex: 4,
-        },
-        grid: [
-            {
-                top: '10%',
-                height: '20%',
-                width: '100%'
-            }, {
-                top: '30%',
-                height: '20%',
-                width: '100%'
-            }, {
-                top: '50%',
-                height: '20%',
-                width: '100%'
-            }, {
-                top: '70%',
-                height: '20%',
-                width: '100%'
-            },
-            {
-                top: '10%',
-                height: '80%',
-                width: '100%',
-                z: 10
-            }
-        ],
-        xAxis: [
-            {
-                type: 'time',
-                min: 'dataMin',
-                show: false,
-                gridIndex: 0
-            }, {
-                type: 'time',
-                min: 'dataMin',
-                show: false,
-                gridIndex: 1
-            }, {
-                type: 'time',
-                min: 'dataMin',
-                show: false,
-                gridIndex: 2
-            }, {
-                type: 'time',
-                min: 'dataMin',
-                show: true,
-                gridIndex: 3
-            }, {
-                type: 'time',
-                min: 'dataMin',
-                show: false,
-                gridIndex: 4
-            },
-        ],
-        dataZoom: [
-            {
-                type: 'inside',
-                xAxisIndex: "all",
-            },
-        ],
-        yAxis: [
-            {
-                type: 'value',
-                splitLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false, // 不显示坐标轴上的文字
-                },
-                show: true,
-                gridIndex: 0
-            },
-            {
-                type: 'value',
-                splitLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false, // 不显示坐标轴上的文字
-                },
-                show: true,
-                gridIndex: 1
-            }, {
-                type: 'value',
-                splitLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false, // 不显示坐标轴上的文字
-                },
-                show: true,
-                gridIndex: 2
-            }, {
-                type: 'value',
-                splitLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false, // 不显示坐标轴上的文字
-                },
-                show: true,
-                gridIndex: 3
-            }, {
-                type: 'value',
-                splitLine: {
-                    show: false
-                },
-                axisLabel: {
-                    show: false, // 不显示坐标轴上的文字
-                },
-                show: true,
-                gridIndex: 4
-            },
-        ],
+        }
+    ]
 
-        series: [
-            {
-                name: 'data1',
-                type: 'line',
-                showSymbol: false,
-                data: [],
-                xAxisIndex: 0,
-                yAxisIndex: 0,
-                lineStyle: {
-                    color: G_time_chart_color[0][0]
-                }
-            }, {
-                name: 'data2',
-                type: 'line',
-                showSymbol: false,
-                data: [],
-                xAxisIndex: 1,
-                yAxisIndex: 1,
-                emphasis: {
-                    focus: 'series'
-                },
-                lineStyle: {
-                    color: G_time_chart_color[1][0]
-                }
-            }, {
-                name: 'data3',
-                type: 'line',
-                showSymbol: false,
-                data: [],
-                xAxisIndex: 2,
-                yAxisIndex: 2,
-                lineStyle: {
-                    color: G_time_chart_color[2][0]
-                }
-            }, {
-                name: 'data4',
-                type: 'line',
-                showSymbol: false,
-                data: [],
-                xAxisIndex: 3,
-                yAxisIndex: 3,
-                lineStyle: {
-                    color: G_time_chart_color[3][0]
-                }
-            }, {
-                name: 'data5',
-                type: 'line',
-                showSymbol: false,
-                data: [],
-                xAxisIndex: 4,
-                yAxisIndex: 4,
-            }
-        ]
-
-    }
-;
+};
 time_echarts.setOption(time_chart_option);
 // 点击通道
 time_echarts.getZr().on('click', param => {
+    // if (window.G_page_type === 'sample') {
+    //     console.log("采集模式，点击无效")
+    //     return;
+    // }
     console.log("进入click")
-    if (last_brushed_flag) {
+    if (last_brushed_flag && window.G_page_type === 'see') {
         console.log("重置下方图数据为全部")
-        window.G_data_sublist = window.G_signal_list
+        window.G_data_sublist = window.G_catfilter_sublist;
         window.refresh3DBar();
         window.refreshHotChart();
         last_brushed_flag = false
@@ -251,22 +254,22 @@ time_echarts.getZr().on('click', param => {
         console.log("点击相同通道", index, "不处理")
         return;
     }
-    window.refresh3DBar()
+    //window.refresh3DBar()
     window.refreshHotChart()
 
     selected_channel_index = index
 })
 
-time_echarts.dispatchAction({
-    type: 'takeGlobalCursor',
-    key: 'brush',
-    brushOption: {
-        brushType: 'lineX',
-        brushMode: 'single',
-        gridIndex: 4
-    },
-});
+//这里设置鼠标指针
 
+// 清除刷子
+function clear_time_chart_brush() {
+    time_echarts.dispatchAction({
+        type: 'brush',
+        command: 'clear',
+        areas: [],
+    })
+}
 
 function renderBrushed(params) {
     console.log('brushend触发', params)
@@ -306,7 +309,13 @@ time_echarts.on('brushEnd', renderBrushed); //圈选结束后的回调
 var one_duration = 10 * 1000
 
 function refresh_time_chart() {
-    let list = window.G_signal_list
+    console.log("refresh_time_chart()")
+    let list = []
+    if (window.G_page_type === 'sample') {
+        list = window.G_signal_list
+    } else if (window.G_page_type === 'see') {
+        list = window.G_catfilter_sublist
+    }
     if (list === undefined || list.length === 0) {
         return;
     }
@@ -361,7 +370,7 @@ function refresh_time_chart() {
             ]
         })
     }
-    console.log(time_list)
+    // console.log(time_list)
     time_echarts.setOption({
         series: [
             {

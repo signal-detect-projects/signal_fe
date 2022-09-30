@@ -31,7 +31,6 @@
 
     <div class="form_right_div">
       <el-form :model="form" label-width="120px" :label-position="labelPosition">
-        <!--      右侧开始-->
         <h3>填写通道名称和说明</h3>
         <el-form-item label="采集事件名称">
           <el-col :span="12">
@@ -303,6 +302,7 @@ const okFunc = () => {
     console.log("js start_sample_thread")
     qt_jsBridge.start_sample_thread();
   }
+  (window as any).clearDataForNewSample()
   return {}
 }
 
