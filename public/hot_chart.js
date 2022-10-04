@@ -71,7 +71,6 @@ var G_Hot_numMax = 0
 // 更新热力图
 function refreshHotChart() {
     let list = []
-    console.log("refreshHotChart,状态:", window.G_page_type)
     if (window.G_page_type === 'sample') {
         list = window.G_signal_list
     } else {//查看
@@ -80,7 +79,15 @@ function refreshHotChart() {
         }
         list = window.G_data_sublist
     }
+    console.log("refreshHotChart,状态:", window.G_page_type, "数据长度", list.length);
     if (list === undefined || list.length === 0) {
+        hot_echarts.setOption({
+            series: [
+                {
+                    data: []
+                }
+            ]
+        });
         return
     }
     //全局 的部分开始 >>>>>>>>>>>>>>>
@@ -92,6 +99,7 @@ function refreshHotChart() {
     for (let j = 0; j < all_data_list.length; j++) {
         let c = all_data_list[j][idx_key]
         if (c) {
+            c = window.fixC(c);
             c_min = Math.min(c_min, c)
             c_max = Math.max(c_max, c)
         }
@@ -114,11 +122,12 @@ function refreshHotChart() {
         matrix[i] = new Array(len + 1).fill(0)
     }
     for (let i = 0; i < list.length; i++) {
-        let p = list[i]['phase'];
+        let p = window.fixPhase(list[i]['phase']);
         let c = list[i][idx_key]
         if (c === undefined || c == null || c == 0) {
             continue
         }
+        c = window.fixC(c)
         let x_idx = Math.trunc(p / x_sig)
         let y_idx = Math.trunc((c - c_min) / y_sig)
         matrix[x_idx][y_idx] = matrix[x_idx][y_idx] + 1

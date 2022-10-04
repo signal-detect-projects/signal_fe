@@ -33,8 +33,8 @@ var bar_option = {
         nameTextStyle: {
             fontSize: 14
         },
-        min: 'dataMin',
-        max: 'dataMax',
+        // min: 'dataMin',
+        // max: 'dataMax',
         axisLabel: {
             show: true, // 不显示坐标轴上的文字
         },
@@ -116,6 +116,9 @@ var G_bar_speed = 2000 //每秒向左边走多少 秒的距离  2000/(1000/100)
 var G_bar_data = []//全局 的 bar data
 var G_bar_x_len = 60//x轴横跨的时间范围
 
+var G_gap_change_threshold = 2000 //超过这个阈值，就缩小差距
+var G_gap_change_v = 1000;
+
 var G_setIntevalHandle = null
 
 // 实时最新的 phase 偏移 和  通道
@@ -139,7 +142,6 @@ function barMove() {
     } else {
         G_bar_left_t = G_bar_left_t + G_bar_speed / (1000 / G_bar_timeout);//delta*(1000/100) = speed
     }
-    console.log(new Date(G_bar_left_t).Format("yyyy-MM-dd hh:mm:ss"))
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
 
     for (let i = G_bar_left_idx; i < G_bar_data.length; i++) {
@@ -162,6 +164,8 @@ function barMove() {
         return
     }
     G_bar_left_idx = tmp_data[0]['idx']
+    //console.log("bar_echarts.setOption", new Date(G_bar_left_t).Format("yyyy-MM-dd hh:mm:ss"))
+    // console.log("tmp_data", G_bar_left_t, bar_right_t, tmp_data)
     bar_echarts.setOption({
         xAxis3D: {
             min: "'" + G_bar_left_t + "'",
@@ -175,6 +179,23 @@ function barMove() {
     })
 }
 
+
+function clear_3d_bar_chart() {
+    console.log("clear_3d_bar_chart")
+    // if (G_setIntevalHandle !== undefined && G_setIntevalHandle != null) {
+    console.log("clearInterval(G_setIntevalHandle)")
+    clearInterval(G_setIntevalHandle)
+    G_setIntevalHandle = null;
+    // }
+    bar_echarts.setOption({
+        series: [
+            {
+                data: []
+            }
+        ],
+    })
+}
+
 /**
  * 刷新图表，调用时机：
  * 1：采集的时候，第一次采集到数据调用
@@ -183,6 +204,7 @@ function barMove() {
 function refresh3DBar() {
     if (G_setIntevalHandle !== undefined && G_setIntevalHandle != null) {
         clearInterval(G_setIntevalHandle)
+        G_setIntevalHandle = null;
     }
     let list = []
     console.log("refresh3DBar被调用,状态:", window.G_page_type)
@@ -197,14 +219,15 @@ function refresh3DBar() {
     if (list.length === 0) {
         return;
     }
+    console.log("3d bar数据的长度", list.length)
     //缩小gap的逻辑
     let gap_arr = []
     for (let i = 1; i < list.length; i++) {
         let big = list[i]['ts']
         let small = list[i - 1]['ts']
         let gap_len = big - small
-        if (gap_len > 10000) {
-            gap_len = 2000
+        if (gap_len >= G_gap_change_threshold) {
+            gap_len = G_gap_change_v;
         }
         gap_arr.push(gap_len)
     }
@@ -277,8 +300,8 @@ function addNewData2BarChart(newData) {
         let big = newData[i]['ts']
         let small = newData[i - 1]['ts']
         let gap_len = big - small
-        if (gap_len > 10000) {
-            gap_len = 2000
+        if (gap_len >= G_gap_change_threshold) {
+            gap_len = G_gap_change_threshold
         }
         gap_arr.push(gap_len)
     }

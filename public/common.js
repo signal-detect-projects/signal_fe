@@ -19,3 +19,27 @@ Date.prototype.Format = function (fmt) { //author: meizz
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
+
+
+function secTotime(s) {
+    var t = '';
+    if (s > -1) {
+        var hour = Math.floor(s / 3600)
+        var min = Math.floor(s / 60) % 60
+        var sec = s % 60
+        if (hour < 10) {
+            t = '0' + hour + ":"
+        } else {
+            t = hour + ":"
+        }
+        if (min < 10) {
+            t += "0"
+        }
+        t += min + ":"
+        if (sec < 10) {
+            t += "0"
+        }
+        t += sec.toFixed(0)
+    }
+    return t
+}

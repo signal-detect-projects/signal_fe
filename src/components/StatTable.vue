@@ -4,7 +4,7 @@
       <div class="text_icon">
         <img src="../assets/CJ.png">
       </div>
-      <div class="stat_text">采集事件名称：</div>
+      <div class="stat_text">采集名称：</div>
       <div class="text_value">
         {{ data.name }}
       </div>
@@ -18,7 +18,7 @@
         {{ data.sampleTime }}
       </div>
     </div>
-    <div class="stat_one_line">
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
         <img src="../assets/SJ.png">
       </div>
@@ -27,7 +27,7 @@
         {{ data.startTime }}
       </div>
     </div>
-    <div class="stat_one_line">
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
         <img src="../assets/SJ.png">
       </div>
@@ -37,7 +37,28 @@
       </div>
     </div>
 
-    <div class="two_col_lin">
+    <!--    <div class="two_col_lin" v-if="local2_pagetype==='see'">-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/SJ.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">起点时间：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.startTime }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/SJ.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">终点时间：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.endTime }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+
+    <div class="two_col_lin" v-if="local2_pagetype==='see'">
       <div class="col_1">
         <div class="text_icon">
           <img src="../assets/SJ.png">
@@ -94,7 +115,7 @@
         </div>
         <div class="stat_text_2">信号最大值：</div>
         <div class="text_value">
-          {{ data.signalMax }}mV
+          {{ data.signalMax }}
         </div>
       </div>
     </div>
@@ -150,43 +171,81 @@
       </div>
       <div class="stat_text">切换Y单位：</div>
       <div class="unit_radio">
-        <el-radio-group v-model="unit" @change="changeUnit()" disabled=" " class="ml-4">
+        <el-radio-group v-model="unit" @change="changeUnit()" :disabled="local2_pagetype==='sample'" class="ml-4">
           <el-radio label="mV" size="default">mV</el-radio>
           <el-radio label="dB" size="default">dB</el-radio>
         </el-radio-group>
       </div>
+    </div>
+    <div class="stat_one_line">
+      <div class="text_icon">
+        <img src="../assets/qh.png">
+      </div>
+      <div class="stat_text">相位偏移：</div>
+      <el-input-number v-model="phaseOffset" :min="-360" :max="360" :precision="1" @change="phaseChange" size="small"/>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 
-const data = ref({
-  name: '第八次采集',
-  sampleTime: '2022-01-01 00:03:34',
-  startTime: '2022-01-01 00:03:34',
-  endTime: '2022-01-01 00:03:34',
-  duration: '08:23:45',
-  signalNum: 234,
-  num: 233,
-  signalMax: 2344,
-  channelNames: ['通道1', '通道2', '通道3', '通道4'],
-  space12: 12.23,
-  space23: 123.4353,
-  space34: 11.444,
-  note: '这里时候世破魔',
+const data = reactive<any>({
+  name: '--',
+  sampleTime: '--',
+  startTime: '--',
+  endTime: '--',
+  duration: '--',
+  signalNum: '--',
+  signalMax: '--mV',
+  channelNames: ['--', '--', '--', '--'],
+  space12: '--',
+  space23: '--',
+  space34: '--',
+  note: '--',
 
 })
-const unit = ref('mV')
+const unit = ref('mV');
+const phaseOffset = ref(0);
+
+const local2_pagetype = ref('see');
+
+const phaseChange = () => {
+  console.log("相位改变", phaseOffset.value);
+  (window as any).G_phase_offset = phaseOffset.value;
+  (window as any).refreshHotChart();
+}
+
+(window as any).set_stat_table_page_type = function (str: string) {
+  local2_pagetype.value = str
+};
 
 const changeUnit = () => {
-  console.log('切换按钮', unit.value)
-}
+  console.log('切换按钮', unit.value);
+  if (unit.value.toLowerCase() === 'db') {
+    (window as any).G_unit = 1;
+  } else {
+    (window as any).G_unit = 0;
+  }
+  (window as any).refresh_time_chart();
+  (window as any).refreshHotChart();
+};
+
+(window as any).update_stat = function (obj: any) {
+  console.log("update_stat", obj)
+  for (let key in obj) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (obj.hasOwnProperty(key)) {
+      data[key] = obj[key];
+    }
+  }
+};
 
 </script>
 <style lang="scss">
+
+
 .el-row {
   margin-bottom: 20px;
 }
@@ -207,12 +266,16 @@ const changeUnit = () => {
 .topBbb {
   width: 100%;
   height: 100%;
-  padding: 4% 5%;
+  padding: 2% 5%;
+  //font-size: 16px;
+  font-family: Microsoft YaHei, serif;
+  font-weight: 400;
 }
 
 .stat_one_line {
   width: 100%;
-  height: 8%;
+  height: 27px;
+  overflow: hidden;
 
   div {
     float: left;
@@ -248,7 +311,7 @@ const changeUnit = () => {
 
 .two_col_lin {
   width: 100%;
-  height: 8%;
+  height: 27px;
 
   div {
     float: left;
@@ -259,7 +322,6 @@ const changeUnit = () => {
 
     div {
       float: left;
-
     }
   }
 

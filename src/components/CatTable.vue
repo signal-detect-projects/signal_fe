@@ -5,7 +5,7 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
   >
-    <el-table-column type="selection" width="55"/>
+    <el-table-column v-if="local_page_type==='see'" type="selection" width="55"/>
     <el-table-column property="id" label="序号" width="60"/>
     <el-table-column property="Description" label="说明"/>
     <el-table-column property="Percentage" label="占比(%)"/>
@@ -16,13 +16,13 @@
     <el-table-column property="T14" label="时差14"/>
     <el-table-column property="T24" label="时差24"/>
   </el-table>
-  <div style="margin-top: 20px">
+  <div style="margin-top: 20px" v-if="show_select_option">
     <el-button @click="pushSelection">确定</el-button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {Ref, ref} from 'vue'
+import {ref, computed} from 'vue'
 import {ElTable} from 'element-plus'
 
 interface User {
@@ -75,7 +75,10 @@ const handleSelectionChange = (val: Line[]) => {
   multipleSelection.value = val
 }
 
-const str = '[{"id": 1, "Description": "所有通道均为噪声信号", "Percentage": 69.53}, {"id": 2, "Description": "仅4通道检测到非噪声信号", "Percentage": 0.03}, {"id": 3, "T14": 4.5, "Percentage": 1.04}, {"id": 4, "T12": 24.24, "Percentage": 0.85}, {"id": 5, "T12": -2.71, "T24": 7.01, "Percentage": 28.56}]'
+const local_page_type = ref('see');
+(window as any).set_cat_table_page_type = function (str: string) {
+  local_page_type.value = str
+};
 
 const tableData = ref<Line[]>([]);
 

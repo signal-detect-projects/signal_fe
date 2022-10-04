@@ -28,7 +28,6 @@
     <!--    柱状图-->
     <div id="bar_chart" class="my_bg_white my_boder_radius">
     </div>
-
     <!--    热力图-->
     <div id="hot_chart" class="my_bg_white my_boder_radius">
     </div>
@@ -49,8 +48,30 @@
     var G_unit = 0 // 全局的单位配置，0：mV, 1:db
     var G_phase_offset = 0 // 相位偏移
     var G_filter_catIds = [] //筛选分类
+    var G_sig_max = [0, 0, 0, 0]
+    var sample_start_date = null
+
+    var sample_time_interval_handle = null;
+
+    function start_sample_interval() {
+        sample_time_interval_handle = setInterval(function () {
+            let time = new Date();
+            let ms = time.getTime() - sample_start_date.getTime();
+            let str = secTotime(ms / 1000);
+            update_header_data({
+                'duration': str
+            });
+        }, 1000);
+    }
+
+    function clear_sample_interval() {
+        clearInterval(sample_time_interval_handle);
+    }
 
     function fixPhase(ph) {
+        if (G_phase_offset === 0) {
+            return ph;
+        }
         let np = ph + G_phase_offset
         if (np < 0) {
             return np + 360;
@@ -69,6 +90,7 @@
             return cv;
         }
         return 20 * Math.log10(0.2 * cv) - 80;
+        // return cv / 2;
     }
 
     if (window.qt) {
@@ -96,16 +118,22 @@
     };
 
     function update_G_catfilter_sublist() {
+        console.log("----------------------------------")
+
         console.log("update_G_catfilter_sublist()")
+        console.log("G_signal_list len", G_signal_list.length)
+        console.log("G_catfilter_sublist len", window.G_catfilter_sublist.length)
+        console.log("G_data_sublist len", G_data_sublist.length)
         if (window.G_signal_list.length === 0) {
             return;
         }
         if (window.G_filter_catIds.length === 0) {
             console.log("G_filter_catIds 为空，直接赋值")
             window.G_catfilter_sublist = window.G_signal_list
+            G_data_sublist = window.G_signal_list
             return;
         }
-        console.log(window.G_signal_list.length);
+        console.log("*******************************************");
         let res_arr = []
         for (let i = 0; i < window.G_signal_list.length; i++) {
             let item = window.G_signal_list[i];
@@ -115,12 +143,22 @@
         }
         window.G_catfilter_sublist = res_arr
         G_data_sublist = res_arr
+
+        console.log("G_signal_list len", G_signal_list.length)
+        console.log("G_catfilter_sublist len", window.G_catfilter_sublist.length)
+        console.log("G_data_sublist len", G_data_sublist.length)
+
+        console.log("----------------------------------")
     }
 
     //设置页面的类型，由 qt 设置
     function setPageType(type) {
         console.log("转换 page type:", type)
         window.G_page_type = type;
+        console.log("-------------------")
+        window.set_cat_table_page_type(type);
+        window.set_stat_table_page_type(type);
+        window.update_header_page_type(type);
         if (type === 'see') {
             time_echarts.dispatchAction({
                 type: 'takeGlobalCursor',
@@ -145,7 +183,7 @@
                 console.log("js 收到 new_signal_come  参数", param);
                 var json = JSON.parse(param);
                 window.update_table_data(json['sample']['location']);
-                add_data_main(json)
+                add_data_main(json);
             });
         })
     }
@@ -154,7 +192,31 @@
         var new_list = json['list']
         if (new_list !== undefined && new_list != null && new_list.length > 0) {
             console.log("js 接受到新数据", new_list.length, "个")
-            G_signal_list = G_signal_list.concat(json['list'])
+            G_signal_list = G_signal_list.concat(json['list']);
+            let sample = json['sample']
+            let space_list = ['--', '--', '--']
+            if (json['space'] != null) {
+                space_list = json['space'].split(",")
+            }
+            let channelName_list = ['', '', '', '']
+            if (json['channelName'] != null) {
+                channelName_list = json['channelName'].split(",")
+            }
+            if (G_page_type === 'see') {
+                update_stat({
+                    "name": sample['name'],
+                    "sampleTime": sample['startTime'],
+                    "channelNames": channelName_list,
+                    "space12": space_list[0] === '' ? '--' : space_list[0],
+                    "space23": space_list[1] === '' ? '--' : space_list[1],
+                    "space34": space_list[2] === '' ? '--' : space_list[2],
+                    "note": sample["note"]
+                })
+            }
+            refresh_stat_data(G_signal_list);
+            update_header_data({
+                'num': G_signal_list.length
+            });
             if (window.G_page_type === 'sample') {
                 refresh_time_chart();
                 refreshHotChart();
@@ -173,6 +235,44 @@
                 console.log("!!! window.G_page_type 错误  ")
             }
         }
+    }
+
+    function refresh_stat_data(list) {
+        let duration = '';
+        let start_time = '';
+        let end_time = '';
+        if (list.length > 0) {
+            let first_ts = list[0]['ts']
+            let last_ts = list[list.length - 1]['ts']
+            duration = secTotime((last_ts - first_ts) / 1000);
+
+            start_time = new Date(first_ts).Format('yyyy-MM-dd hh:mm:ss');
+            end_time = new Date(last_ts).Format('yyyy-MM-dd hh:mm:ss');
+        }
+
+        let sigMax = 0;
+        let len = list.length
+        let idx_key = "c" + (window.G_selectedChannelIdx + 1)
+        for (let i = 0; i < len; i++) {
+            let c = list[i][idx_key]
+            if (c === undefined || c === null) {
+                continue
+            }
+            sigMax = Math.max(sigMax, c)
+        }
+        let str = ""
+        if (G_unit === 0) {
+            str = sigMax.toFixed(0) + "mV"
+        } else {
+            str = fixC(sigMax).toFixed(0) + "dB"
+        }
+        update_stat({
+            "signalMax": str,
+            "signalNum": len,
+            "duration": duration,
+            "startTime": start_time,
+            "endTime": end_time,
+        })
     }
 
 
@@ -211,16 +311,26 @@
         console.log("js clearDataForNewSample 清理数据，为这次采集")
         G_signal_list = []
         G_data_sublist = []
+        G_catfilter_sublist = []
         G_bar_left_t = 0
         G_bar_left_idx = 0
         G_bar_right_idx = []
         G_bar_data = []
-        G_setIntevalHandle = null
         G_first_come_data = true;
+
+        refresh_time_chart();
+        clear_3d_bar_chart();
+        refreshHotChart();
+
     }
 
-    setPageType('see')
-    fetch_data()
+
+    fetch_data();
+
+    setTimeout(() => {
+        setPageType('see');
+    }, 10)
+
     // G_fetch_dataHandle = setInterval("fetch_data()", 5000)
 
 

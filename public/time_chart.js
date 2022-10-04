@@ -205,14 +205,11 @@ var time_chart_option = {
 time_echarts.setOption(time_chart_option);
 // 点击通道
 time_echarts.getZr().on('click', param => {
-    // if (window.G_page_type === 'sample') {
-    //     console.log("采集模式，点击无效")
-    //     return;
-    // }
     console.log("进入click")
     if (last_brushed_flag && window.G_page_type === 'see') {
         console.log("重置下方图数据为全部")
         window.G_data_sublist = window.G_catfilter_sublist;
+        window.refresh_stat_data(window.G_data_sublist);
         window.refresh3DBar();
         window.refreshHotChart();
         last_brushed_flag = false
@@ -256,7 +253,6 @@ time_echarts.getZr().on('click', param => {
     }
     //window.refresh3DBar()
     window.refreshHotChart()
-
     selected_channel_index = index
 })
 
@@ -287,8 +283,8 @@ function renderBrushed(params) {
     let end_ts = time_arr[1]
 
     let new_sub_list = []
-    for (let i = 0; i < window.G_signal_list.length; i++) {
-        let it = window.G_signal_list[i];
+    for (let i = 0; i < window.G_catfilter_sublist.length; i++) {
+        let it = window.G_catfilter_sublist[i];
         if (it['ts'] > end_ts) {
             break
         }
@@ -296,9 +292,10 @@ function renderBrushed(params) {
             new_sub_list.push(it)
         }
     }
-    window.G_data_sublist = new_sub_list
+    window.G_data_sublist = new_sub_list;
+    window.refresh_stat_data(window.G_data_sublist);
     console.log("renderBrushed 修改 G_data_sublist,范围", start, end)
-    console.log("G_signal_list 长度", window.G_signal_list.length, "G_data_sublist长度", window.G_data_sublist.length)
+    console.log("G_catfilter_sublist 长度", window.G_catfilter_sublist.length, "G_data_sublist长度", window.G_data_sublist.length)
     window.refresh3DBar();
     window.refreshHotChart();
 }
@@ -317,6 +314,23 @@ function refresh_time_chart() {
         list = window.G_catfilter_sublist
     }
     if (list === undefined || list.length === 0) {
+        time_echarts.setOption({
+            series: [
+                {
+                    data: []
+                }, {
+                    data: []
+                },
+                {
+                    data: []
+                },
+                {
+                    data: []
+                }, {
+                    data: []
+                },
+            ]
+        });
         return;
     }
     let last_time = new Date(list[0]['ts'])
@@ -344,7 +358,7 @@ function refresh_time_chart() {
         let crr = [item['c1'], item['c2'], item['c3'], item['c4']]
         for (let i = 0; i < 4; i++) {
             if (crr[i]) {
-                c_arr[i] = c_arr[i] + crr[i]
+                c_arr[i] = c_arr[i] + window.fixC(crr[i])
             }
         }
         left_data = true;

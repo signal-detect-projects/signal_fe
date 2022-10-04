@@ -4,7 +4,6 @@
       width="60%"
       align-center
   >
-
     <div class="form_left_div">
 
       <el-form-item label="填写ip">
@@ -19,11 +18,11 @@
         <span style="font-size: x-small">{{ connectMessage }}</span>
       </el-form-item>
 
-      <el-radio-group v-model="form.channel">
-        <el-radio label="通道1"/>
-        <el-radio label="通道2"/>
-        <el-radio label="通道3"/>
-        <el-radio label="通道4"/>
+      <el-radio-group v-model="form.line_channel">
+        <el-radio label="1" name="通道1">通道1</el-radio>
+        <el-radio label="2" name="通道2">通道2</el-radio>
+        <el-radio label="3" name="通道3">通道3</el-radio>
+        <el-radio label="4" name="通道4">通道4</el-radio>
       </el-radio-group>
 
       <div id="form_line_chart"></div>
@@ -33,7 +32,7 @@
       <el-form :model="form" label-width="120px" :label-position="labelPosition">
         <h3>填写通道名称和说明</h3>
         <el-form-item label="采集事件名称">
-          <el-col :span="12">
+          <el-col :span="21">
             <el-input v-model="form.name"/>
           </el-col>
         </el-form-item>
@@ -42,22 +41,18 @@
             <el-input v-model="form.channel1Name"/>
           </el-form-item>
           <el-form-item label="通道2">
-
             <el-input v-model="form.channel2Name"/>
-
           </el-form-item>
           <el-form-item label="通道3">
-
             <el-input v-model="form.channel3Name"/>
-
           </el-form-item>
           <el-form-item label="通道4">
             <el-input v-model="form.channel4Name"/>
           </el-form-item>
         </div>
         <el-form-item label="说明">
-          <el-col :span="12">
-            <el-input v-model="form.channel4Name"/>
+          <el-col :span="21">
+            <el-input v-model="form.note"/>
           </el-col>
         </el-form-item>
         <!--      通道属性设置-->
@@ -142,9 +137,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button type="primary" @click="okFunc">确定</el-button>
-        <el-button type="primary" @click="openFunc">图表</el-button>
-        <el-button type="primary" @click="refreshFormLineChart">刷新图表</el-button>
-        <el-button type="primary" @click="invokeQt">调用C++</el-button>
+        <!--        <el-button type="primary" @click="refreshFormLineChart">刷新图表</el-button>-->
         <el-button @click=" centerDialogVisible=false">取消</el-button>
       </span>
     </template>
@@ -155,16 +148,10 @@ import {reactive, ref, watch} from 'vue'
 
 const labelPosition = ref('left')
 const form = reactive({
-  tableName: '',
   name: '',
-  region: '',
   ip: '127.0.0.1',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  channel: '通道1',
-  desc: '',
+  line_channel: '1',
+  threshold: 0,
   channel1Name: '',
   channel2Name: '',
   channel3Name: '',
@@ -173,10 +160,11 @@ const form = reactive({
   space23: '',
   space34: '',
   channelStateList: ["0", "0", "0", "0"],
+  note: ""
 })
 const centerDialogVisible = ref(false)
 
-const connectMessage = ref('连接成功！')
+const connectMessage = ref('')
 
 const channel_btn_status = [false, false, false];
 
@@ -197,29 +185,12 @@ const channelStatusChange = () => {
     }
   }
 
-  // for (let i = 0; i < 3; i++) {
-  //   if (form.channelStateList[i] != '1') {
-  //     firstStopIdx = i;
-  //     break;
-  //   }
-  // }
-  // console.log("firstIdx", firstStopIdx);
-  // if (firstStopIdx >= 0) {
-  //   for (let i = 0; i <= firstStopIdx; i++) {
-  //     channel_btn_status[i] = false;
-  //   }
-  //   for (let i = firstStopIdx + 1; i < 4; i++) {
-  //     form.channelStateList[i] = '0';
-  //     channel_btn_status[i] = true
-  //   }
-  //
-  // }
 }
 
 
-const openFunc = () => {
-  centerDialogVisible.value = true
+const createFormLine = () => {
   const domObj = document.getElementById('form_line_chart')
+  console.log(domObj)
   const formLineChart = (window as any).echarts.init(domObj, null, {renderer: 'canvas'});
   (window as any).formLineChart = formLineChart
   const formLineChartOption = {
@@ -234,9 +205,6 @@ const openFunc = () => {
     tooltip: {
       show: false,
       triggerOn: 'none',
-      // position: function (pt) {
-      //   return [pt[0], 130];
-      // }
     },
     xAxis: {
       type: 'category',
@@ -253,12 +221,14 @@ const openFunc = () => {
     },
     yAxis: {
       type: 'value',
+      min: '0',
+      max: '3000',
       axisTick: {
         show: false
       },
       axisPointer: {
         triggerTooltip: false,
-        value: 2500,
+        value: 300,
         snap: false,
         lineStyle: {
           color: ' #79bbff',
@@ -278,7 +248,7 @@ const openFunc = () => {
     },
     series: [
       {
-        data: [1000, 2000, 30000, 40000, 500, 6, 7000],
+        data: [],
         type: 'line',
         showSymbol: false,
       }
@@ -287,10 +257,9 @@ const openFunc = () => {
   formLineChart.setOption(formLineChartOption);
   formLineChart.on('updateAxisPointer', function (param: any) {
     let y_value = param['axesInfo'][0]['value'];
-    console.log("移动", y_value)
-
+    form.threshold = y_value
+    console.log("阈值调整", y_value)
   });
-  console.log(formLineChart)
 }
 //这里开始真正的采集
 const okFunc = () => {
@@ -300,9 +269,18 @@ const okFunc = () => {
   let qt_jsBridge = (window as any).qt_jsBridge;
   if (qt_jsBridge) {
     console.log("js start_sample_thread")
-    qt_jsBridge.start_sample_thread();
+    qt_jsBridge.start_sample_thread(JSON.stringify(form), function (ret: any) {
+      console.log("采集接口返回：", ret)
+    });
   }
-  (window as any).clearDataForNewSample()
+  (window as any).sample_start_date = new Date();
+  (window as any).start_sample_interval();
+  (window as any).clearDataForNewSample();
+
+  let update_param: any = form;
+  update_param['channelNames'] = [form.channel1Name, form.channel2Name, form.channel3Name, form.channel4Name];
+  update_param['sampleTime'] = new Date().Format('yyyy-MM-dd hh:mm:ss');
+  (window as any).update_stat(form);
   return {}
 }
 
@@ -332,19 +310,16 @@ const refreshFormLineChart = () => {
   })
 }
 
-const invokeQt = () => {
-  console.log("invokeQt")
-  let qt_main_w = (window as any).qt_main_w
-  console.log(qt_main_w)
-  if (qt_main_w) {
-    qt_main_w.JsToQT("htllp", "C++");
-  }
-}
-
 const test_btn = () => {
   console.log("test_btn被调用");
-  (window as any).qt_javaClient.queryIp('127.0.0.1', function (res: any) {
-    console.log("gggggggggggggggg", res)
+  (window as any).qt_javaClient.queryIp(form.ip, function (res_str: any) {
+    console.log("测试按钮结果", res_str)
+    const res = JSON.parse(res_str);
+    if (res['status'] !== undefined && res['status'] !== null) {
+      connectMessage.value = "连接成功！";
+    } else {
+      connectMessage.value = "连接失败";
+    }
   })
 }
 
@@ -352,12 +327,15 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   if (!newValue) {
     //弹窗消失
     (window as any).fixSampleBtnStatus();
+    connectMessage.value = '';
   }
-
 });
 
 // 暴露全局函数
-(window as any).openDialogFunc = openFunc;
+(window as any).openDialogFunc = function () {
+  centerDialogVisible.value = true;
+  setTimeout(createFormLine, 100)
+};
 (window as any).closeDialogFunc = closeFunc;
 
 </script>
@@ -376,6 +354,7 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   padding: 10px;
 }
 
+
 .form_right_div {
   width: 49%;
   overflow: hidden;
@@ -385,10 +364,20 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 
   .channel_group_div {
     //display: flex;
+    height: 100px;
 
     .el-form-item {
       width: 50%;
       float: left;
+
+      label {
+        width: 60px !important;
+        text-align: center !important;
+      }
+
+      .el-input {
+        width: 160px !important;
+      }
     }
   }
 }
@@ -427,10 +416,10 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 
 
 #form_line_chart {
-  margin-top: 10px;
-  width: 75%;
+  width: 80%;
   height: 300px;
   border: 1px solid blue;
+  margin: 10px;
 }
 
 .channel_radio_block_list {
