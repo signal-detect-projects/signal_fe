@@ -7,4 +7,20 @@
 
 
     --blue-backgroud: #d9ecff;
+    --el-color-primary: #3978F8;
+}
+
+
+.el-radio__input.is-checked .el-radio__inner {
+    border-color: #3978F8 !important;
+    background: #3978F8 !important;
+}
+
+.el-radio__input.is-checked+.el-radio__label {
+    color: #3978F8 !important;
+}
+
+.el-progress-bar__inner {
+    background-color: #3978F8 !important;
+    transition: width 0s ease !important;
 }

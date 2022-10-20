@@ -3,6 +3,8 @@
       ref="multipleTableRef"
       :data="tableData"
       style="width: 100%"
+      :max-height="local_page_type==='see'? 350:405 "
+      scrollbar-always-on="true"
       @selection-change="handleSelectionChange"
   >
     <el-table-column v-if="local_page_type==='see'" type="selection" width="55"/>
@@ -16,7 +18,7 @@
     <el-table-column property="T14" label="时差14"/>
     <el-table-column property="T24" label="时差24"/>
   </el-table>
-  <div style="margin-top: 20px" v-if="show_select_option">
+  <div style="margin-top: 20px" v-if="local_page_type==='see'">
     <el-button @click="pushSelection">确定</el-button>
   </div>
 </template>
@@ -84,5 +86,5 @@ const tableData = ref<Line[]>([]);
 
 (window as any).update_table_data = function (str: string) {
   tableData.value = JSON.parse(str)
-}
+};
 </script>

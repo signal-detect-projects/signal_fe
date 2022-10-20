@@ -165,7 +165,7 @@
         {{ data.note }}
       </div>
     </div>
-    <div class="stat_one_line">
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
         <img src="../assets/qh.png">
       </div>
@@ -177,7 +177,7 @@
         </el-radio-group>
       </div>
     </div>
-    <div class="stat_one_line">
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
         <img src="../assets/qh.png">
       </div>
@@ -266,10 +266,14 @@ const changeUnit = () => {
 .topBbb {
   width: 100%;
   height: 100%;
-  padding: 2% 5%;
+  padding: 22px 22px;
   //font-size: 16px;
   font-family: Microsoft YaHei, serif;
   font-weight: 400;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .stat_one_line {

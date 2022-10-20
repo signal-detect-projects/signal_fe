@@ -1,9 +1,18 @@
 // 流动柱状图
 // 热力图
+var sin_data = []
+for (var i = 0; i < 360; i++) {
+    sin_data.push([0, i, Math.sin(i / 180 * Math.PI)])
+}
+
+
 var phases_arr = []
 for (var i = 0; i <= 360; i++) {
     phases_arr.push(i)
 }
+
+
+var G_bar_z_max = 200;
 
 var bar_option = {
     tooltip: {},
@@ -36,7 +45,7 @@ var bar_option = {
         // min: 'dataMin',
         // max: 'dataMax',
         axisLabel: {
-            show: true, // 不显示坐标轴上的文字
+            show: false, // 不显示坐标轴上的文字
         },
         splitArea: {
             show: true
@@ -60,13 +69,16 @@ var bar_option = {
         nameTextStyle: {
             fontSize: 14
         },
+        axisLabel: {
+            show: false, // 不显示坐标轴上的文字
+        },
         min: 0,
         max: 'dataMax',
     },
     grid3D: {
         boxWidth: 200,//x轴
         boxDepth: 150,//y轴
-        boxHeight: 50,
+        boxHeight: 90,
         viewControl: {
             // projection: 'orthographic',
             distance: 300,
@@ -101,6 +113,14 @@ var bar_option = {
             },
             shading: 'lambert',
         },
+        {
+            type: 'line3D',
+            data: [],
+            lineStyle: {
+                // color: ' #95d475'
+                color: [1, 1, 1, 1]
+            },
+        },
     ]
 };
 
@@ -111,8 +131,8 @@ var G_bar_left_t = 0 // 下一帧蕞左边的时间
 var G_bar_left_idx = 0//记录每一帧最左边的下标
 var G_bar_right_idx = 0
 
-var G_bar_timeout = 100 //刷新每一帧的interval;
-var G_bar_speed = 2000 //每秒向左边走多少 秒的距离  2000/(1000/100)
+var G_bar_timeout = 200 //刷新每一帧的interval;
+var G_bar_speed = 1000 //每秒向左边走多少 秒的距离  2000/(1000/100)
 var G_bar_data = []//全局 的 bar data
 var G_bar_x_len = 60//x轴横跨的时间范围
 
@@ -125,6 +145,7 @@ var G_setIntevalHandle = null
 function barMove() {
     // console.log("barMove(),G_bar_right_idx", G_bar_right_idx, "G_bar_data.length", G_bar_data.length)
     //计算最大的C值
+    G_bar_z_max = 200;
     let c_max = 0;
     let idx_key = "c" + (window.G_selectedChannelIdx + 1)
     const all_data_list = window.G_signal_list
@@ -135,11 +156,16 @@ function barMove() {
         }
     }
     let tmp_data = []
-    //如果现在在 bar_right_t 右边暂时没有数据了，咱们就是说，先不动
-    if (G_bar_right_idx >= G_bar_data.length - 1) {
-        console.log("右边没有更多数据，停止流动")
-        // 没有新数据的情况下仍然要刷新，因为可能选择通道变了
-    } else {
+    // //如果现在在 bar_right_t 右边暂时没有数据了，咱们就是说，先不动
+    // if (G_bar_right_idx >= G_bar_data.length - 1) {
+    //     console.log("右边没有更多数据，停止流动")
+    //     // 没有新数据的情况下仍然要刷新，因为可能选择通道变了
+    // } else {
+    //
+    // }
+    let now_ts = new Date().getTime();
+    if (window.G_page_type === 'see' || now_ts >= G_bar_left_t + G_bar_x_len * 1000) {
+        //只有在 当前时间超过了最右边的范围，才往右走
         G_bar_left_t = G_bar_left_t + G_bar_speed / (1000 / G_bar_timeout);//delta*(1000/100) = speed
     }
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
@@ -151,10 +177,12 @@ function barMove() {
         let item = G_bar_data[i]
         let c_v = item['c_arr'][window.G_selectedChannelIdx];
         if (G_bar_data[i]['ts'] >= G_bar_left_t) {
+            let fix_c = window.fixC(c_v)
+            G_bar_z_max = Math.max(G_bar_z_max, fix_c);
             tmp_data.push({
                 idx: item['idx'],
                 ts: item['ts'],
-                value: [item['ts'], window.fixPhase(item['phase']), window.fixC(c_v)]
+                value: [item['ts'], window.fixPhase(item['phase']), fix_c]
             })
             G_bar_right_idx = i;
         }
@@ -164,6 +192,15 @@ function barMove() {
         return
     }
     G_bar_left_idx = tmp_data[0]['idx']
+
+    //让动画更流畅
+    tmp_data.unshift({
+        value: [G_bar_left_t, 0, 0]
+    })
+    tmp_data.push({
+        value: [bar_right_t, 360, 0]
+    })
+
     //console.log("bar_echarts.setOption", new Date(G_bar_left_t).Format("yyyy-MM-dd hh:mm:ss"))
     // console.log("tmp_data", G_bar_left_t, bar_right_t, tmp_data)
     bar_echarts.setOption({
@@ -174,7 +211,14 @@ function barMove() {
         series: [
             {
                 data: tmp_data
-            }
+            },
+            {
+                data: sin_data.map(function (item) {
+                    return {
+                        value: [G_bar_left_t, item[1], G_bar_z_max * item[2]]
+                    };
+                }),
+            },
         ]
     })
 }
@@ -191,6 +235,8 @@ function clear_3d_bar_chart() {
         series: [
             {
                 data: []
+            }, {
+                data: []
             }
         ],
     })
@@ -202,6 +248,7 @@ function clear_3d_bar_chart() {
  * 2：查看的时候，
  */
 function refresh3DBar() {
+    G_bar_z_max = 200;
     if (G_setIntevalHandle !== undefined && G_setIntevalHandle != null) {
         clearInterval(G_setIntevalHandle)
         G_setIntevalHandle = null;
@@ -221,28 +268,30 @@ function refresh3DBar() {
     }
     console.log("3d bar数据的长度", list.length)
     //缩小gap的逻辑
-    let gap_arr = []
-    for (let i = 1; i < list.length; i++) {
-        let big = list[i]['ts']
-        let small = list[i - 1]['ts']
-        let gap_len = big - small
-        if (gap_len >= G_gap_change_threshold) {
-            gap_len = G_gap_change_v;
-        }
-        gap_arr.push(gap_len)
-    }
+    // let gap_arr = []
+    // for (let i = 1; i < list.length; i++) {
+    //     let big = list[i]['ts']
+    //     let small = list[i - 1]['ts']
+    //     let gap_len = big - small
+    //     if (gap_len >= G_gap_change_threshold) {
+    //         gap_len = G_gap_change_v;
+    //     }
+    //     gap_arr.push(gap_len)
+    // }
     let res_data = []
     let last_ts = list[0]['ts']
     for (let i = 0; i < list.length; i++) {
         let item = list[i]
         let phase = item['phase']
         let t_value = 0
-        if (i === 0) {
-            t_value = item['ts']
-        } else {
-            t_value = last_ts + gap_arr[i - 1]
-        }
-        last_ts = t_value;
+        // if (i === 0) {
+        //     t_value = item['ts']
+        // } else {
+        //     t_value = last_ts + gap_arr[i - 1]
+        // }
+        // last_ts = t_value;
+
+        t_value = item['ts'];
         res_data.push({
             idx: i,
             ts: t_value,
@@ -270,6 +319,10 @@ function refresh3DBar() {
         })
         G_bar_right_idx = i;
     }
+    //让动画更流畅
+    tmp_data.push({
+        value: [bar_right_t, 360, 0]
+    })
 
     bar_echarts.setOption({
         xAxis3D: {
@@ -283,6 +336,8 @@ function refresh3DBar() {
         series: [
             {
                 data: tmp_data
+            }, {
+                data: []
             }
         ],
     })
@@ -295,30 +350,31 @@ function refresh3DBar() {
  */
 function addNewData2BarChart(newData) {
     console.log("addNewData2BarChart(newData)")
-    let gap_arr = []
-    for (let i = 1; i < newData.length; i++) {
-        let big = newData[i]['ts']
-        let small = newData[i - 1]['ts']
-        let gap_len = big - small
-        if (gap_len >= G_gap_change_threshold) {
-            gap_len = G_gap_change_threshold
-        }
-        gap_arr.push(gap_len)
-    }
-    let first_ts = newData[0]['ts']
-    if (G_bar_data.length !== 0) {
-        first_ts = G_bar_data[G_bar_data.length - 1]['ts'] + 2
-    }
+    // let gap_arr = []
+    // for (let i = 1; i < newData.length; i++) {
+    //     let big = newData[i]['ts']
+    //     let small = newData[i - 1]['ts']
+    //     let gap_len = big - small
+    //     if (gap_len >= G_gap_change_threshold) {
+    //         gap_len = G_gap_change_threshold
+    //     }
+    //     gap_arr.push(gap_len)
+    // }
+    // let first_ts = newData[0]['ts']
+    // if (G_bar_data.length !== 0) {
+    //     first_ts = G_bar_data[G_bar_data.length - 1]['ts'] + 2
+    // }
     let last_ts = null;
     let old_g_bar_data_len = G_bar_data.length
     for (let i = 0; i < newData.length; i++) {
         let item = newData[i]
         let t_value = 0
-        if (i === 0) {
-            t_value = first_ts
-        } else {
-            t_value = last_ts + gap_arr[i - 1];
-        }
+        // if (i === 0) {
+        //     t_value = first_ts
+        // } else {
+        //     t_value = last_ts + gap_arr[i - 1];
+        // }
+        t_value = item['ts']
         G_bar_data.push({
             idx: old_g_bar_data_len + i,
             ts: t_value,

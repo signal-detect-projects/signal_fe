@@ -6,55 +6,37 @@ for (var i = 0; i <= 360; i++) {
 var hot_option = {
     animation: false,
     tooltip: {},
-    grid: [{
+    grid: {
         // right: 140,
         // left: 40
-    }, {
-        width: '90%',
-    }],
-    xAxis: [{
+    },
+    xAxis: {
         min: '0',
         max: '360',
         type: 'category',
-        interval: 45,
-        gridIndex: 0
+        interval: 45
         // data: xData
-    }, {
-        type: 'value',
-        gridIndex: 1,
-
-        // splitLine: {
-        //     show: false
-        // },
-        // axisLabel: {
-        //     show: false, // 不显示坐标轴上的文字
-        // },
-        show: false,
-    }],
-    yAxis: [{
+    },
+    yAxis: {
         type: 'category',
         axisLabel: {
-            show: false, // 不显示坐标轴上的文字
+            show: true, // 不显示坐标轴上的文字
         },
         splitLine: {
             show: false
         },
-    }, {
-        type: 'value',
-        gridIndex: 1,
-        show: false,
-    }],
+    },
     visualMap: {
         show: false,
-        type: 'piecewise',
-        // type: 'continuous',
+        // type: 'piecewise',
+        type: 'continuous',
         min: 0,
-        max: 10,
+        max: 50,
         // left: 'right',
         // top: 'center',
         calculable: true,
         realtime: false,
-        splitNumber: 20,
+        splitNumber: 8,
         // inRange: {
         //     color: [
         //         '#313695',
@@ -79,22 +61,10 @@ var hot_option = {
             emphasis: {
                 itemStyle: {
                     borderColor: '#333',
-                    borderWidth: 0
+                    borderWidth: 1
                 }
             },
-            xAxisIndex: 0,
-            yAxisIndex: 0,
             progressive: 0
-        }, {
-            type: 'line',
-            data: [],
-            xAxisIndex: 1,
-            yAxisIndex: 1,
-            showSymbol: false,
-            lineStyle: {
-                color: 'black',
-                opacity: 0.2
-            }
         }
     ],
 };
@@ -177,16 +147,13 @@ function refreshHotChart() {
             G_Hot_numMax = Math.max(G_Hot_numMax, matrix[i][j])
         }
     }
-
     hot_echarts.setOption({
-        xAxis: [{
+        xAxis: {
             data: x_data
-        }, {
-            data: x_data
-        }],
-        yAxis: [{
+        },
+        yAxis: {
             data: y_data
-        }],
+        },
         visualMap: {
             min: 0,
             max: G_Hot_numMax
@@ -195,9 +162,6 @@ function refreshHotChart() {
             {
                 data: chart_data
             },
-            {
-                data: sin_data_2
-            }
         ]
     });
 }

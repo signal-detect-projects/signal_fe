@@ -95,7 +95,7 @@ var time_chart_option = {
                 show: false
             },
             axisLabel: {
-                show: true, // 不显示坐标轴上的文字
+                show: false, // 不显示坐标轴上的文字
             },
             show: true,
             gridIndex: 0,
@@ -107,7 +107,7 @@ var time_chart_option = {
                 show: false
             },
             axisLabel: {
-                show: true, // 不显示坐标轴上的文字
+                show: false, // 不显示坐标轴上的文字
             },
             show: true,
             gridIndex: 1,
@@ -118,7 +118,7 @@ var time_chart_option = {
                 show: false
             },
             axisLabel: {
-                show: true, // 不显示坐标轴上的文字
+                show: false, // 不显示坐标轴上的文字
             },
             show: true,
             gridIndex: 2,
@@ -129,7 +129,7 @@ var time_chart_option = {
                 show: false
             },
             axisLabel: {
-                show: true, // 不显示坐标轴上的文字
+                show: false, // 不显示坐标轴上的文字
             },
             show: true,
             gridIndex: 3,

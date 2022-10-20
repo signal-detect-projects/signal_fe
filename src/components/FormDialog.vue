@@ -1,30 +1,30 @@
 <template>
   <el-dialog
       v-model="centerDialogVisible"
-      width="60%"
+      width="80%"
       align-center
   >
     <div class="form_left_div">
+      <div class="left_top_wave_block">
+        <el-form-item label="填写ip">
+          <el-col :span="6">
+            <el-input v-model="form.ip"/>
+          </el-col>
+          <el-col :span="1">
+          </el-col>
+          <el-col :span="4">
+            <el-button @click="test_btn" type="primary" color="#3978F8">测试</el-button>
+          </el-col>
+          <span style="font-size: x-small;color: #3978F8">{{ connectMessage }}</span>
+        </el-form-item>
 
-      <el-form-item label="填写ip">
-        <el-col :span="12">
-          <el-input v-model="form.ip"/>
-        </el-col>
-        <el-col :span="1">
-        </el-col>
-        <el-col :span="4">
-          <el-button @click="test_btn">测试</el-button>
-        </el-col>
-        <span style="font-size: x-small">{{ connectMessage }}</span>
-      </el-form-item>
-
-      <el-radio-group v-model="form.line_channel">
-        <el-radio label="1" name="通道1">通道1</el-radio>
-        <el-radio label="2" name="通道2">通道2</el-radio>
-        <el-radio label="3" name="通道3">通道3</el-radio>
-        <el-radio label="4" name="通道4">通道4</el-radio>
-      </el-radio-group>
-
+        <el-radio-group v-model="form.line_channel">
+          <el-radio label="1" name="通道1">通道1</el-radio>
+          <el-radio label="2" name="通道2">通道2</el-radio>
+          <el-radio label="3" name="通道3">通道3</el-radio>
+          <el-radio label="4" name="通道4">通道4</el-radio>
+        </el-radio-group>
+      </div>
       <div id="form_line_chart"></div>
     </div>
 
@@ -37,20 +37,20 @@
           </el-col>
         </el-form-item>
         <div class="channel_group_div">
-          <el-form-item label="通道1">
-            <el-input v-model="form.channel1Name"/>
+          <el-form-item label="通道一" class="channel_text_space">
+            <el-input v-model="form.channel1Name" color="#3978F8"/>
           </el-form-item>
-          <el-form-item label="通道2">
+          <el-form-item label="通道二" style="position: relative;left: -20px" class="channel_text_space">
             <el-input v-model="form.channel2Name"/>
           </el-form-item>
-          <el-form-item label="通道3">
+          <el-form-item label="通道三" class="channel_text_space">
             <el-input v-model="form.channel3Name"/>
           </el-form-item>
-          <el-form-item label="通道4">
+          <el-form-item label="通道四" style="position: relative;left: -20px" class="channel_text_space">
             <el-input v-model="form.channel4Name"/>
           </el-form-item>
         </div>
-        <el-form-item label="说明">
+        <el-form-item label="说明" style="letter-spacing: 17px">
           <el-col :span="21">
             <el-input v-model="form.note"/>
           </el-col>
@@ -136,9 +136,10 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="okFunc">确定</el-button>
+        <el-button type="primary" @click="okFunc" style="min-width: 100px;min-height: 40px;font-size: 24px"
+                   color="#2D356C">确定</el-button>
         <!--        <el-button type="primary" @click="refreshFormLineChart">刷新图表</el-button>-->
-        <el-button @click=" centerDialogVisible=false">取消</el-button>
+        <!--        <el-button @click=" centerDialogVisible=false">取消</el-button>-->
       </span>
     </template>
   </el-dialog>
@@ -151,7 +152,7 @@ const form = reactive({
   name: '',
   ip: '127.0.0.1',
   line_channel: '1',
-  threshold: 0,
+  threshold: 100,
   channel1Name: '',
   channel2Name: '',
   channel3Name: '',
@@ -191,15 +192,21 @@ const channelStatusChange = () => {
 const createFormLine = () => {
   const domObj = document.getElementById('form_line_chart')
   console.log(domObj)
-  const formLineChart = (window as any).echarts.init(domObj, null, {renderer: 'canvas'});
+  const formLineChart = (window as any).echarts.init(domObj, null,
+      {renderer: 'canvas'});
+// ,width: 554,height:400
   (window as any).formLineChart = formLineChart
   const formLineChartOption = {
     grid: {
       // 当图表长度或者宽度被压缩了，设置grid即可
-      left: "20%",
-      right: "10%",
-      bottom: "10%",
-      top: "10%",
+      // left: "10%",
+      // right: "10%",
+      // bottom: "10%",
+      // top: "10%",
+      x: 30,
+      y: 30,
+      x2: 30,
+      y2: 30,
       containLabel: true,
     },
     tooltip: {
@@ -222,27 +229,27 @@ const createFormLine = () => {
     yAxis: {
       type: 'value',
       min: '0',
-      max: '3000',
+      max: '4000',
       axisTick: {
         show: false
       },
       axisPointer: {
         triggerTooltip: false,
-        value: 300,
+        value: 100,
         snap: false,
         lineStyle: {
-          color: ' #79bbff',
+          color: '#3978F8',
           width: 2,
           type: 'solid'
         },
         label: {
           show: true,
-          backgroundColor: ' #79bbff'
+          backgroundColor: '#3978F8'
         },
         handle: {
           show: true,
-          margin: -260,
-          color: ' #79bbff'
+          margin: -450,
+          color: '#3978F8'
         }
       },
     },
@@ -261,6 +268,9 @@ const createFormLine = () => {
     console.log("阈值调整", y_value)
   });
 }
+
+const Go_on_wave = ref(true);
+
 //这里开始真正的采集
 const okFunc = () => {
   console.log("表单确定")
@@ -281,21 +291,23 @@ const okFunc = () => {
   update_param['channelNames'] = [form.channel1Name, form.channel2Name, form.channel3Name, form.channel4Name];
   update_param['sampleTime'] = new Date().Format('yyyy-MM-dd hh:mm:ss');
   (window as any).update_stat(form);
+
+  // if ((window as any).form_wave_interval !== undefined && (window as any).form_wave_interval !== null) {
+  console.log("cancel form_wave_interval")
+  clearTimeout((window as any).form_wave_interval);
+  Go_on_wave.value = false;
+  // }
   return {}
 }
 
 const closeFunc = () => {
   centerDialogVisible.value = false
-}
+};
 
-const refreshFormLineChart = () => {
+const refreshFormLineChart = (list: any) => {
   const formLineChartTemp = (window as any).formLineChart
-  var arr = []
-  let last_v = 1000
   var x_arr = []
-  for (let i = 0; i < 680; i++) {
-    last_v = last_v + Math.random() * 100 - 50;
-    arr.push(last_v)
+  for (let i = 0; i < list.length; i++) {
     x_arr.push(i + 1)
   }
   formLineChartTemp.setOption({
@@ -304,10 +316,33 @@ const refreshFormLineChart = () => {
     },
     series: [
       {
-        data: arr
+        data: list
       }
     ]
   })
+}
+
+
+function get_and_refresh_chart() {
+  console.log("wave 刷新通道", form.line_channel);
+  let str_p = {
+    "ch": form.line_channel,
+    "th": form.threshold
+  };
+
+  (window as any).qt_jsBridge.fetch_wave(JSON.stringify(str_p), function (json_str: string) {
+    console.log("返回字符串", json_str)
+    if (json_str !== undefined && json_str !== null && json_str.length > 0) {
+      let list = JSON.parse(json_str);
+      refreshFormLineChart(list);
+    }
+    if (Go_on_wave.value) {
+      console.log("setTimeout new");
+      (window as any).form_wave_interval = setTimeout(function () {
+        get_and_refresh_chart();
+      }, 100);
+    }
+  });
 }
 
 const test_btn = () => {
@@ -320,7 +355,9 @@ const test_btn = () => {
     } else {
       connectMessage.value = "连接失败";
     }
-  })
+  });
+  Go_on_wave.value = true;
+  get_and_refresh_chart();
 }
 
 watch(centerDialogVisible, (newValue, oldValue) => {
@@ -328,6 +365,8 @@ watch(centerDialogVisible, (newValue, oldValue) => {
     //弹窗消失
     (window as any).fixSampleBtnStatus();
     connectMessage.value = '';
+    Go_on_wave.value = false;
+    clearTimeout((window as any).form_wave_interval);
   }
 });
 
@@ -342,6 +381,14 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 <style lang="scss">
 @import "../assets/base.css";
 
+//.el-input{
+//  background-color: #67C23A;
+//}
+
+.channel_text_space {
+  letter-spacing: 16px;
+}
+
 .dialog-footer button:first-child {
   margin-right: 10px;
 }
@@ -350,8 +397,26 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   width: 49%;
   overflow: hidden;
   float: left;
-  height: 600px;
-  padding: 10px;
+  height: 514px;
+  padding: 20px;
+
+  .left_top_wave_block {
+    margin-left: 80px;
+  }
+}
+
+#form_line_chart {
+  width: 80%;
+  height: 400px;
+  //border: 1px solid blue;
+  margin: auto;
+  border: 1px solid #F2F3F5;
+  box-shadow: 3px 3px 12px 0px rgba(228, 228, 228, 0.5);
+  border-radius: 10px;
+
+  canvas {
+    width: 100%;
+  }
 }
 
 
@@ -360,7 +425,21 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   overflow: hidden;
   float: right;
   height: 600px;
+  padding: 20px;
 
+  .el-button {
+    width: 40px !important;
+  }
+
+  .el-form-item__label {
+    max-width: 104px;
+    //text-align: justify;
+    //text-align-last: justify;
+    //display: flex;
+    //display: block;
+    //justify-content: space-evenly;
+    word-spacing: 30px !important;
+  }
 
   .channel_group_div {
     //display: flex;
@@ -371,12 +450,12 @@ watch(centerDialogVisible, (newValue, oldValue) => {
       float: left;
 
       label {
-        width: 60px !important;
+        width: 104px !important;
         text-align: center !important;
       }
 
       .el-input {
-        width: 160px !important;
+        width: 191px !important;
       }
     }
   }
@@ -415,13 +494,6 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 }
 
 
-#form_line_chart {
-  width: 80%;
-  height: 300px;
-  border: 1px solid blue;
-  margin: 10px;
-}
-
 .channel_radio_block_list {
   display: flex;
   margin: auto;
@@ -431,7 +503,8 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 
 .channel_radio_block {
   /*width: 100px;*/
-  background-color: var(--blue-backgroud);
+  //background-color: var(--blue-backgroud);
+  background-color: #F3F3FA;
   display: inline-block;
   position: relative;
 

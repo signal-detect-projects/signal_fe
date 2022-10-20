@@ -37,6 +37,7 @@
 </div>
 <div id="form_dialog"></div>
 <script>
+
     var G_sample_status = 'close'
     var G_signal_list = []
     var G_selectedChannelIdx = 0
@@ -91,6 +92,10 @@
         }
         return 20 * Math.log10(0.2 * cv) - 80;
         // return cv / 2;
+    }
+
+    function fetch_wave() {
+
     }
 
     if (window.qt) {
@@ -180,7 +185,7 @@
             window.qt_jsBridge = channel.objects.jsBridge;
 
             channel.objects.jsBridge.new_signal_come.connect(function (param) {
-                console.log("js 收到 new_signal_come  参数", param);
+                //console.log("js 收到 new_signal_come  参数", param);
                 var json = JSON.parse(param);
                 window.update_table_data(json['sample']['location']);
                 add_data_main(json);
@@ -195,12 +200,12 @@
             G_signal_list = G_signal_list.concat(json['list']);
             let sample = json['sample']
             let space_list = ['--', '--', '--']
-            if (json['space'] != null) {
-                space_list = json['space'].split(",")
+            if (sample['space'] != null) {
+                space_list = sample['space'].split(",")
             }
             let channelName_list = ['', '', '', '']
-            if (json['channelName'] != null) {
-                channelName_list = json['channelName'].split(",")
+            if (sample['channelName'] != null) {
+                channelName_list = sample['channelName'].split(",")
             }
             if (G_page_type === 'see') {
                 update_stat({
@@ -275,12 +280,6 @@
         })
     }
 
-
-    if (window.G_mode === 'browser') {
-        console.log("********************************************")
-
-    }
-
     var G_global_last_id = 0
 
     function fetch_data() {
@@ -321,9 +320,7 @@
         refresh_time_chart();
         clear_3d_bar_chart();
         refreshHotChart();
-
     }
-
 
     fetch_data();
 

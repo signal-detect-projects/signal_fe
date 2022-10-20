@@ -2,15 +2,17 @@
   <div class="top_header">
     <div class="top_time">
       <span>采集时长：</span>
-      <span>{{ sample_duration }}</span>
+      <span class="header_text">{{ sample_duration }}</span>
     </div>
     <div class="top_num">
       <span>信号总数量：</span>
-      <span>{{ signal_num }}</span>
+      <span class="header_text">{{ signal_num }}</span>
     </div>
     <div class="top_menu" v-if="local_page_type==='sample'">
       <span>采集状态：</span>
-      <span>{{ switchText }}</span>
+      <span :class="sampleSwitch? 'top_menu_switchText_class_open' : 'top_menu_switchText_class_close'   ">{{
+          switchText
+        }}</span>
       <el-switch
           v-model="sampleSwitch"
           size="small"
@@ -80,6 +82,18 @@ const local_page_type = ref('sample');
 </script>
 
 <style lang="scss" scoped>
+
+.el-switch {
+  //--el-switch-on-color: #3978F8 !important;
+  --el-switch-on-color: #67C23A !important;
+  //--el-switch-off-color: #3978F8 !important;
+}
+
+.el-switch.is-checked .el-switch__core {
+  border-color: #3978F8 !important;
+  background-color: #3978F8 !important;
+}
+
 .top_header {
   background: #FFFFFF;
   box-shadow: 0px 0px 9px 1px rgba(200, 202, 222, 0.2);
@@ -93,5 +107,31 @@ const local_page_type = ref('sample');
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+}
+
+.header_text {
+  font-size: 24px;
+  font-family: DIN;
+  font-weight: bold;
+  color: #0A48C6;
+
+  position: relative;
+  top: 2px;
+}
+
+.top_menu_switchText_class_close {
+  font-size: 20px;
+  color: #FF5151;
+  margin-right: 10px;
+  position: relative;
+  top: 2px;
+}
+
+.top_menu_switchText_class_open {
+  font-size: 20px;
+  color: #67C23A;
+  margin-right: 10px;
+  position: relative;
+  top: 2px;
 }
 </style>
