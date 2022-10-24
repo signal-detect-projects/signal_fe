@@ -6,7 +6,7 @@
   >
     <div class="form_left_div">
       <div class="left_top_wave_block">
-        <el-form-item label="填写ip">
+        <el-form-item label="设备IP">
           <el-col :span="6">
             <el-input v-model="form.ip"/>
           </el-col>
@@ -22,7 +22,7 @@
           <el-radio label="1" name="通道1">通道1</el-radio>
           <el-radio label="2" name="通道2">通道2</el-radio>
           <el-radio label="3" name="通道3">通道3</el-radio>
-          <el-radio label="4" name="通道4">通道4</el-radio>
+          <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
         </el-radio-group>
       </div>
       <div id="form_line_chart"></div>
@@ -60,9 +60,9 @@
           <div class="channel_radio_block_list">
             <div class="channel_radio_block" v-for="i in 4" :key="i">
               <el-radio-group v-model="form.channelStateList[i-1]" class="ml-4" @change="channelStatusChange">
-                <el-radio label="0" size="small" :disabled="channel_btn_status[i-1]">停止使用</el-radio>
-                <el-radio label="1" size="small" :disabled="channel_btn_status[i-1]">投入使用</el-radio>
-                <el-radio label="2" size="small" :disabled="channel_btn_status[i-1]">环境采集</el-radio>
+                <el-radio label="0" size="small" :disabled="i===4 || channel_btn_status[i-1]">停止使用</el-radio>
+                <el-radio label="1" size="small" :disabled=" i===4 ||channel_btn_status[i-1]">投入使用</el-radio>
+                <el-radio label="2" size="small" :disabled=" i===4 ||channel_btn_status[i-1]">环境采集</el-radio>
               </el-radio-group>
               <div class="down_arrow"></div>
             </div>
@@ -116,8 +116,10 @@
               <div class="dis_input_item">
                 <el-input-number
                     v-model="form.space34"
-                    :min="1"
+                    :min="0"
                     :max="99"
+                    :disabled="true"
+                    model-value="0"
                     :precision="1" :step="0.1"
                     size="small"
                     controls-position="right"
@@ -138,8 +140,6 @@
       <span class="dialog-footer">
         <el-button type="primary" @click="okFunc" style="min-width: 100px;min-height: 40px;font-size: 24px"
                    color="#2D356C">确定</el-button>
-        <!--        <el-button type="primary" @click="refreshFormLineChart">刷新图表</el-button>-->
-        <!--        <el-button @click=" centerDialogVisible=false">取消</el-button>-->
       </span>
     </template>
   </el-dialog>
@@ -198,15 +198,10 @@ const createFormLine = () => {
   (window as any).formLineChart = formLineChart
   const formLineChartOption = {
     grid: {
-      // 当图表长度或者宽度被压缩了，设置grid即可
-      // left: "10%",
-      // right: "10%",
-      // bottom: "10%",
-      // top: "10%",
-      x: 30,
+      x: 10,
       y: 30,
-      x2: 30,
-      y2: 30,
+      x2: 10,
+      y2: 10,
       containLabel: true,
     },
     tooltip: {
@@ -227,11 +222,15 @@ const createFormLine = () => {
       },
     },
     yAxis: {
+      name: "mV",
       type: 'value',
-      min: '0',
+      min: '-4000',
       max: '4000',
       axisTick: {
-        show: false
+        show: true
+      },
+      axisLine: {
+        show: true
       },
       axisPointer: {
         triggerTooltip: false,
@@ -248,7 +247,7 @@ const createFormLine = () => {
         },
         handle: {
           show: true,
-          margin: -450,
+          margin: -470,
           color: '#3978F8'
         }
       },
@@ -288,7 +287,9 @@ const okFunc = () => {
   (window as any).clearDataForNewSample();
 
   let update_param: any = form;
-  update_param['channelNames'] = [form.channel1Name, form.channel2Name, form.channel3Name, form.channel4Name];
+  let channel_name_list = [form.channel1Name, form.channel2Name, form.channel3Name, form.channel4Name];
+  update_param['channelNames'] = channel_name_list;
+  (window as any).update_channel_name(channel_name_list);
   update_param['sampleTime'] = new Date().Format('yyyy-MM-dd hh:mm:ss');
   (window as any).update_stat(form);
 
@@ -310,13 +311,25 @@ const refreshFormLineChart = (list: any) => {
   for (let i = 0; i < list.length; i++) {
     x_arr.push(i + 1)
   }
+
+  let color = [
+    ['rgba(255, 153, 0,1)', 'rgba(255, 153, 0,0.2)'],
+    ['rgba(0,0,255,1)', 'rgba(0,0,255,0.2)'],
+    ['rgba(255,0,0,1)', 'rgba(255,0,0,0.2)'],
+    // ['rgba(0,255,0,1)', 'rgba(0,255,0,0.2)'], 四通道被禁用，只有一个颜色
+    ['rgba(0,255,0,1)', 'rgba(0,255,0,0.2)'],
+  ]
+  let color_idx = Number(form.line_channel) - 1
   formLineChartTemp.setOption({
     xAxis: {
       data: x_arr
     },
     series: [
       {
-        data: list
+        data: list,
+        lineStyle: {
+          color: color[color_idx][0]
+        }
       }
     ]
   })
@@ -331,7 +344,7 @@ function get_and_refresh_chart() {
   };
 
   (window as any).qt_jsBridge.fetch_wave(JSON.stringify(str_p), function (json_str: string) {
-    console.log("返回字符串", json_str)
+    console.log("fetch_wave返回字符串")
     if (json_str !== undefined && json_str !== null && json_str.length > 0) {
       let list = JSON.parse(json_str);
       refreshFormLineChart(list);

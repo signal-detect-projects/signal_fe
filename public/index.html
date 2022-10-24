@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <!--    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">-->
     <script src="./qwebchannel.js"></script>
     <script src="./echarts.min.js"></script>
     <script src="./echarts-gl.min.js"></script>
@@ -20,12 +21,49 @@
     </div>
     <!--    分时图-->
     <div id="time_chart" class="my_bg_white my_boder_radius">
+        <div class="time_chart_title">趋势图</div>
+        <div class="cname_left_block">
+            <div class="cname1 cname">
+                <div class="cname_div">
+                    <div class="text_icon">
+                        <img src="./image/TD1.png">
+                    </div>
+                    <p class="cname_text">通道1</p>
+                </div>
+            </div>
+            <div class="cname1 cname">
+                <div class="cname_div">
+                    <div class="text_icon">
+                        <img src="./image/TD1.png">
+                    </div>
+                    <p class="cname_text">通道2</p>
+                </div>
+            </div>
+            <div class="cname1 cname">
+                <div class="cname_div">
+                    <div class="text_icon">
+                        <img src="./image/TD1.png">
+                    </div>
+                    <p class="cname_text">通道3</p>
+                </div>
+            </div>
+            <div class="cname1 cname">
+                <div class="cname_div">
+                    <div class="text_icon">
+                        <img src="./image/TD1.png">
+                    </div>
+                    <p class="cname_text">通道4</p>
+                </div>
+            </div>
+        </div>
         <div id="time_echarts"></div>
     </div>
 </div>
 <!--第二行-->
 <div class="line2">
     <!--    柱状图-->
+    <div class="prps_chart_title">PRPS图</div>
+    <div class="prpd_chart_title">PRPD图</div>
     <div id="bar_chart" class="my_bg_white my_boder_radius">
     </div>
     <!--    热力图-->
@@ -122,6 +160,16 @@
         }
     };
 
+    function update_channel_name(c_name_arr) {
+        var p_list = document.getElementsByClassName("cname_text")
+        console.log(p_list)
+        for (let i = 0; i < 4; i++) {
+            var p_i = p_list[i]
+            p_i.innerText = c_name_arr[i];
+        }
+    }
+
+
     function update_G_catfilter_sublist() {
         console.log("----------------------------------")
 
@@ -206,6 +254,7 @@
             let channelName_list = ['', '', '', '']
             if (sample['channelName'] != null) {
                 channelName_list = sample['channelName'].split(",")
+                update_channel_name(channelName_list)
             }
             if (G_page_type === 'see') {
                 update_stat({
@@ -218,10 +267,16 @@
                     "note": sample["note"]
                 })
             }
-            refresh_stat_data(G_signal_list);
+            let list_res = refresh_stat_data(G_signal_list);
             update_header_data({
-                'num': G_signal_list.length
+                'sample_name': sample['name'],
+                'num': G_signal_list.length,
             });
+            if (G_page_type === 'see') {
+                update_header_data({
+                    'duration': list_res['duration']
+                })
+            }
             if (window.G_page_type === 'sample') {
                 refresh_time_chart();
                 refreshHotChart();
@@ -271,13 +326,15 @@
         } else {
             str = fixC(sigMax).toFixed(0) + "dB"
         }
-        update_stat({
+        let res = {
             "signalMax": str,
             "signalNum": len,
             "duration": duration,
             "startTime": start_time,
             "endTime": end_time,
-        })
+        };
+        update_stat(res)
+        return res;
     }
 
     var G_global_last_id = 0
@@ -322,11 +379,11 @@
         refreshHotChart();
     }
 
-    fetch_data();
+    // fetch_data();
+    // setTimeout(() => {
+    //     setPageType('see');
+    // }, 10)
 
-    setTimeout(() => {
-        setPageType('see');
-    }, 10)
 
     // G_fetch_dataHandle = setInterval("fetch_data()", 5000)
 

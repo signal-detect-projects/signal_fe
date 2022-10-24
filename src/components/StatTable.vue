@@ -1,14 +1,14 @@
 <template>
   <div class="topBbb">
-    <div class="stat_one_line">
-      <div class="text_icon">
-        <img src="../assets/CJ.png">
-      </div>
-      <div class="stat_text">采集名称：</div>
-      <div class="text_value">
-        {{ data.name }}
-      </div>
-    </div>
+    <!--    <div class="stat_one_line">-->
+    <!--      <div class="text_icon">-->
+    <!--        <img src="../assets/CJ.png">-->
+    <!--      </div>-->
+    <!--      <div class="stat_text">采集名称：</div>-->
+    <!--      <div class="text_value">-->
+    <!--        {{ data.name }}-->
+    <!--      </div>-->
+    <!--    </div>-->
     <div class="stat_one_line">
       <div class="text_icon">
         <img src="../assets/SJ.png">
@@ -37,26 +37,6 @@
       </div>
     </div>
 
-    <!--    <div class="two_col_lin" v-if="local2_pagetype==='see'">-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/SJ.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">起点时间：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.startTime }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/SJ.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">终点时间：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.endTime }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
 
     <div class="two_col_lin" v-if="local2_pagetype==='see'">
       <div class="col_1">
@@ -79,83 +59,111 @@
       </div>
     </div>
 
-    <div class="two_col_lin">
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/cgq.png">
-        </div>
-        <div class="stat_text_2">传感器12间距：</div>
-        <div class="text_value">
-          {{ data.space12 }}
-        </div>
-      </div>
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/cgq.png">
-        </div>
-        <div class="stat_text_2">传感器23间距：</div>
-        <div class="text_value">
-          {{ data.space23 }}
-        </div>
-      </div>
-    </div>
-    <div class="two_col_lin">
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/cgq.png">
-        </div>
-        <div class="stat_text_2">传感器34间距：</div>
-        <div class="text_value">
-          {{ data.space34 }}
-        </div>
-      </div>
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/xh.png">
-        </div>
-        <div class="stat_text_2">信号最大值：</div>
-        <div class="text_value">
-          {{ data.signalMax }}
-        </div>
-      </div>
-    </div>
+    <!--    <div class="two_col_lin">-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/cgq.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">传感器12间距：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.space12 }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/cgq.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">传感器23间距：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.space23 }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <!--    <div class="two_col_lin">-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/cgq.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">传感器34间距：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.space34 }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div class="col_1">-->
+    <!--        <div class="text_icon">-->
+    <!--          <img src="../assets/xh.png">-->
+    <!--        </div>-->
+    <!--        <div class="stat_text_2">信号最大值：</div>-->
+    <!--        <div class="text_value">-->
+    <!--          {{ data.signalMax }}-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
 
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/TD1.png">
+        <img src="../assets/cgq.png">
       </div>
-      <div class="stat_text">通道1名称：</div>
+      <div class="stat_text">传感器12间距：</div>
       <div class="text_value">
-        {{ data.channelNames[0] }}
+        {{ data.space12 }}
       </div>
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/TD1.png">
+        <img src="../assets/cgq.png">
       </div>
-      <div class="stat_text">通道2名称：</div>
+      <div class="stat_text">传感器23间距：</div>
       <div class="text_value">
-        {{ data.channelNames[1] }}
+        {{ data.space23 }}
       </div>
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/TD1.png">
+        <img src="../assets/cgq.png">
       </div>
-      <div class="stat_text">通道3名称：</div>
+      <div class="stat_text">传感器34间距：</div>
       <div class="text_value">
-        {{ data.channelNames[2] }}
+        {{ data.space34 }}
       </div>
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/TD1.png">
+        <img src="../assets/xh.png">
       </div>
-      <div class="stat_text">通道4名称：</div>
+      <div class="stat_text">信号最大值：</div>
       <div class="text_value">
-        {{ data.channelNames[3] }}
+        {{ data.signalMax }}
       </div>
     </div>
+
+    <!--    <div class="stat_one_line">-->
+    <!--      <div class="text_icon">-->
+    <!--        <img src="../assets/TD1.png">-->
+    <!--      </div>-->
+    <!--      <div class="stat_text">通道2名称：</div>-->
+    <!--      <div class="text_value">-->
+    <!--        {{ data.channelNames[1] }}-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <!--    <div class="stat_one_line">-->
+    <!--      <div class="text_icon">-->
+    <!--        <img src="../assets/TD1.png">-->
+    <!--      </div>-->
+    <!--      <div class="stat_text">通道3名称：</div>-->
+    <!--      <div class="text_value">-->
+    <!--        {{ data.channelNames[2] }}-->
+    <!--      </div>-->
+    <!--    </div>-->
+    <!--    <div class="stat_one_line">-->
+    <!--      <div class="text_icon">-->
+    <!--        <img src="../assets/TD1.png">-->
+    <!--      </div>-->
+    <!--      <div class="stat_text">通道4名称：</div>-->
+    <!--      <div class="text_value">-->
+    <!--        {{ data.channelNames[3] }}-->
+    <!--      </div>-->
+    <!--    </div>-->
     <div class="stat_one_line">
       <div class="text_icon">
         <img src="../assets/sm.png">

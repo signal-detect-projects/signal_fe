@@ -1,6 +1,10 @@
 <template>
   <div class="top_header">
     <div class="top_time">
+      <span>采集名称：</span>
+      <span class="header_text">{{ sample_name }}</span>
+    </div>
+    <div class="top_time">
       <span>采集时长：</span>
       <span class="header_text">{{ sample_duration }}</span>
     </div>
@@ -16,8 +20,7 @@
       <el-switch
           v-model="sampleSwitch"
           size="small"
-          @change="changeSampleStatus"
-      />
+          @change="changeSampleStatus"/>
     </div>
   </div>
 </template>
@@ -42,10 +45,15 @@ const switchText = computed(() => {
     sampleSwitch.value = true
   }
 }
+
+const sample_name = ref("--");
 const sample_duration = ref('00:00:00');
 const signal_num = ref(0);
 
 (window as any).update_header_data = function (p: any) {
+  if (p.sample_name) {
+    sample_name.value = p.sample_name;
+  }
   if (p.duration) {
     sample_duration.value = p.duration;
   }
@@ -103,7 +111,6 @@ const local_page_type = ref('sample');
   width: 98%;
   margin: auto;
   position: relative;
-  top: 10px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;

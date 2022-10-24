@@ -8,7 +8,8 @@ var G_time_chart_color = [
     ['rgba(255, 153, 0,1)', 'rgba(255, 153, 0,0.2)'],
     ['rgba(0,0,255,1)', 'rgba(0,0,255,0.2)'],
     ['rgba(255,0,0,1)', 'rgba(255,0,0,0.2)'],
-    ['rgba(0,255,0,1)', 'rgba(0,255,0,0.2)'],
+    // ['rgba(0,255,0,1)', 'rgba(0,255,0,0.2)'], 四通道被禁用，只有一个颜色
+    ['rgba(0,255,0,0.2)', 'rgba(0,255,0,0.2)'],
 ]
 
 var selected_channel_index = 0;
@@ -58,17 +59,26 @@ var time_chart_option = {
         {
             type: 'time',
             min: 'dataMin',
-            show: false,
+            show: true,
+            axisLabel: {
+                show: false, // 不显示坐标轴上的文字
+            },
             gridIndex: 0
         }, {
             type: 'time',
             min: 'dataMin',
-            show: false,
+            show: true,
+            axisLabel: {
+                show: false, // 不显示坐标轴上的文字
+            },
             gridIndex: 1
         }, {
             type: 'time',
             min: 'dataMin',
-            show: false,
+            show: true,
+            axisLabel: {
+                show: false, // 不显示坐标轴上的文字
+            },
             gridIndex: 2
         }, {
             type: 'time',
@@ -86,6 +96,7 @@ var time_chart_option = {
         {
             type: 'inside',
             xAxisIndex: "all",
+            minValueSpan: 1000 * 40,
         },
     ],
     yAxis: [
@@ -169,7 +180,7 @@ var time_chart_option = {
                 focus: 'series'
             },
             lineStyle: {
-                color: G_time_chart_color[1][0]
+                color: G_time_chart_color[1][1]
             }
         }, {
             name: 'data3',
@@ -179,7 +190,7 @@ var time_chart_option = {
             xAxisIndex: 2,
             yAxisIndex: 2,
             lineStyle: {
-                color: G_time_chart_color[2][0]
+                color: G_time_chart_color[2][1]
             }
         }, {
             name: 'data4',
@@ -189,7 +200,7 @@ var time_chart_option = {
             xAxisIndex: 3,
             yAxisIndex: 3,
             lineStyle: {
-                color: G_time_chart_color[3][0]
+                color: G_time_chart_color[3][1]
             }
         }, {
             name: 'data5',

@@ -5,7 +5,9 @@ for (var i = 0; i <= 360; i++) {
 
 var hot_option = {
     animation: false,
-    tooltip: {},
+    tooltip: {
+        // show: false
+    },
     grid: [{
         // right: 140,
         // left: 40
@@ -46,30 +48,30 @@ var hot_option = {
     }],
     visualMap: {
         show: false,
-        type: 'piecewise',
-        // type: 'continuous',
-        min: 0,
-        max: 10,
+        // type: 'piecewise',
+        type: 'continuous',
+        // min: 0,
+        // max: 10,
         // left: 'right',
         // top: 'center',
         calculable: true,
         realtime: false,
         splitNumber: 20,
-        // inRange: {
-        //     color: [
-        //         '#313695',
-        //         '#4575b4',
-        //         '#74add1',
-        //         '#abd9e9',
-        //         '#e0f3f8',
-        //         '#ffffbf',
-        //         '#fee090',
-        //         '#fdae61',
-        //         '#f46d43',
-        //         '#d73027',
-        //         '#a50026'
-        //     ]
-        // }
+        inRange: {
+            color: [
+                '#313695',
+                '#4575b4',
+                '#74add1',
+                '#abd9e9',
+                '#e0f3f8',
+                '#ffffbf',
+                '#fee090',
+                '#fdae61',
+                '#f46d43',
+                '#d73027',
+                '#a50026'
+            ]
+        }
     },
     series: [
         {
@@ -100,7 +102,7 @@ var hot_option = {
 };
 var hot_echarts = echarts.init(document.getElementById('hot_chart'), null, {renderer: 'canvas'});
 hot_echarts.setOption(hot_option);
-var G_Hot_chart_sig_num = 50;
+var G_Hot_chart_sig_num = 360;
 var G_Hot_numMax = 0
 
 // 更新热力图
@@ -139,6 +141,7 @@ function refreshHotChart() {
             c_max = Math.max(c_max, c)
         }
     }
+    //构造横轴 y轴
     let x_data = []
     let y_data = []
     let x_sig = 360 / len;
@@ -156,6 +159,7 @@ function refreshHotChart() {
     for (let i = 0; i < len + 1; i++) {
         matrix[i] = new Array(len + 1).fill(0)
     }
+    let xy_set = new Set();
     for (let i = 0; i < list.length; i++) {
         let p = window.fixPhase(list[i]['phase']);
         let c = list[i][idx_key]
@@ -165,8 +169,36 @@ function refreshHotChart() {
         c = window.fixC(c)
         let x_idx = Math.trunc(p / x_sig)
         let y_idx = Math.trunc((c - c_min) / y_sig)
+        xy_set.add(x_idx + ',' + y_idx);
         matrix[x_idx][y_idx] = matrix[x_idx][y_idx] + 1
     }
+    //对附近的进行加权
+    let nei_factor = 0.5;
+    let nei_len = 5;
+
+    let tmp_matrix = new Array(len + 1)
+    for (let i = 0; i < len + 1; i++) {
+        tmp_matrix[i] = new Array(len + 1).fill(0)
+    }
+    xy_set.forEach((value, key) => {
+        let str_arr = value.split(",")
+        let x_idx = Number(str_arr[0])
+        let y_idx = Number(str_arr[1])
+
+        let x_min = Math.max(0, x_idx - nei_len);
+        let x_max = Math.min(x_idx + nei_len, len);
+
+        let y_min = Math.max(0, y_idx - nei_len);
+        let y_max = Math.min(len, y_idx + nei_len);
+        for (let i = x_min; i <= x_max; i++) {
+            for (let j = y_min; j <= y_max; j++) {
+                tmp_matrix[x_idx][y_idx] += matrix[i][j]
+            }
+        }
+    });
+    matrix = tmp_matrix;
+
+
     let chart_data = []
     for (let i = 0; i < len + 1; i++) {
         for (let j = 0; j < len + 1; j++) {

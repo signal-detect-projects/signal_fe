@@ -1,9 +1,14 @@
 <template>
+  <div class="tab_chart_title">分类结果</div>
+  <div class="tab_btn_wrapper">
+    <el-button @click="pushSelection" v-if="local_page_type==='see'" :disabled="pushBtnDisabled">确定</el-button>
+  </div>
+  <!--  350:405-->
   <el-table
       ref="multipleTableRef"
       :data="tableData"
       style="width: 100%"
-      :max-height="local_page_type==='see'? 350:405 "
+      :max-height="local_page_type==='see'? 360:360 "
       scrollbar-always-on="true"
       @selection-change="handleSelectionChange"
   >
@@ -18,9 +23,7 @@
     <el-table-column property="T14" label="时差14"/>
     <el-table-column property="T24" label="时差24"/>
   </el-table>
-  <div style="margin-top: 20px" v-if="local_page_type==='see'">
-    <el-button @click="pushSelection">确定</el-button>
-  </div>
+
 </template>
 
 <script lang="ts" setup>
@@ -47,6 +50,12 @@ interface Line {
 
 const multipleTableRef = ref<InstanceType<typeof ElTable>>();
 const multipleSelection = ref<Line[]>([]);
+
+const pushBtnDisabled = computed(() => {
+  return multipleSelection.value.length === 0;
+})
+
+let last_selected_ids: Array<number> = []
 
 const pushSelection = (rows?: User[]) => {
 
@@ -86,5 +95,19 @@ const tableData = ref<Line[]>([]);
 
 (window as any).update_table_data = function (str: string) {
   tableData.value = JSON.parse(str)
+  // multipleTableRef.value?.clearSelection()
+  multipleTableRef.value?.toggleAllSelection();
+  (window as any).G_filter_catIds = []
+  // tableData.value.forEach((it: any) => {
+  //   (window as any).G_filter_catIds.push(it['id']);
+  // });
+  // (window as any).G_filter_catIds.sort();
 };
 </script>
+
+<style lang="scss">
+.tab_btn_wrapper {
+  margin: 5px 20px 5px 150px;
+  min-height: 32px;
+}
+</style>

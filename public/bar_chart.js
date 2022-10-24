@@ -11,11 +11,12 @@ for (var i = 0; i <= 360; i++) {
     phases_arr.push(i)
 }
 
-
 var G_bar_z_max = 200;
 
 var bar_option = {
-    tooltip: {},
+    tooltip: {
+        show: false
+    },
     animation: false,
     visualMap: {
         show: false,
@@ -36,8 +37,7 @@ var bar_option = {
         }
     },
     xAxis3D: {
-        name: '时间',
-        // type: 'category',
+        name: '',
         type: 'time',
         nameTextStyle: {
             fontSize: 14
@@ -45,7 +45,15 @@ var bar_option = {
         // min: 'dataMin',
         // max: 'dataMax',
         axisLabel: {
-            show: false, // 不显示坐标轴上的文字
+            show: true, // 不显示坐标轴上的文字
+            showMaxLabel: false,
+            interval: 1,
+            formatter: (value, index) => {
+                if (index === 0 || index === 11) {
+                    return '';
+                }
+                return Math.round((value - G_all_first_time) / 1000) + '';
+            }
         },
         splitArea: {
             show: true
@@ -53,7 +61,7 @@ var bar_option = {
 
     },
     yAxis3D: {
-        name: '相位',
+        name: '',
         type: 'value',
         data: phases_arr,
         nameTextStyle: {
@@ -64,13 +72,20 @@ var bar_option = {
         interval: 45
     },
     zAxis3D: {
-        name: '峰值',
+        name: '',
         type: 'value',
         nameTextStyle: {
             fontSize: 14
         },
         axisLabel: {
-            show: false, // 不显示坐标轴上的文字
+            show: true, // 不显示坐标轴上的文字
+            showMaxLabel: false,
+            formatter: (value, index) => {
+                if (value == 0) {
+                    return ''
+                }
+                return value.toFixed(0);
+            }
         },
         min: 0,
         max: 'dataMax',
@@ -81,10 +96,11 @@ var bar_option = {
         boxHeight: 90,
         viewControl: {
             // projection: 'orthographic',
-            distance: 300,
-            // autoRotate: false,
+            distance: 290,
+            autoRotate: false,
             // rotateSensitivity: 0,
-            // zoomSensitivity: 0,
+            zoomSensitivity: 0,
+            panSensitivity: 0
         },
         light: {
             main: {
@@ -109,9 +125,15 @@ var bar_option = {
             },
             label: {
                 fontSize: 16,
-                borderWidth: 1
+                borderWidth: 1,
+                show: false
             },
             shading: 'lambert',
+            emphasis: {
+                label: {
+                    show: false
+                }
+            }
         },
         {
             type: 'line3D',
@@ -134,7 +156,9 @@ var G_bar_right_idx = 0
 var G_bar_timeout = 200 //刷新每一帧的interval;
 var G_bar_speed = 1000 //每秒向左边走多少 秒的距离  2000/(1000/100)
 var G_bar_data = []//全局 的 bar data
-var G_bar_x_len = 60//x轴横跨的时间范围
+var G_bar_x_len = 20//x轴横跨的时间范围
+
+var G_all_first_time = 0;//每一串的蕞左边的那个时间
 
 var G_gap_change_threshold = 2000 //超过这个阈值，就缩小差距
 var G_gap_change_v = 1000;
@@ -266,6 +290,7 @@ function refresh3DBar() {
     if (list.length === 0) {
         return;
     }
+    G_all_first_time = list[0]['ts'];
     console.log("3d bar数据的长度", list.length)
     //缩小gap的逻辑
     // let gap_arr = []
@@ -300,7 +325,8 @@ function refresh3DBar() {
         })
     }
     G_bar_data = res_data
-    G_bar_left_t = res_data[0]['ts']
+    // G_bar_left_t = res_data[0]['ts']
+    G_bar_left_t = G_all_first_time - G_bar_x_len * 1000
     G_bar_left_idx = 0
     // console.log("G_idx", G_bar_left, G_bar_right)
     // console.log(res_data)
