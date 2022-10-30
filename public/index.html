@@ -62,8 +62,8 @@
 <!--第二行-->
 <div class="line2">
     <!--    柱状图-->
-    <div class="prps_chart_title">PRPS图</div>
-    <div class="prpd_chart_title">PRPD图</div>
+    <div id="prps_chart_title_id" class="prps_chart_title">PRPS图谱-通道1</div>
+    <div id="prpd_chart_title_id" class="prpd_chart_title">PRPD图谱-通道1</div>
     <div id="bar_chart" class="my_bg_white my_boder_radius">
     </div>
     <!--    热力图-->
@@ -74,7 +74,40 @@
     </div>
 </div>
 <div id="form_dialog"></div>
+
+<div id="cover_img" onclick="cover_invisiable">
+    <div id="cover_btn" class="css-hnkyg1">进入检波
+        <span style="display: inline-flex; align-items: center;">​<svg width="20" height="20" viewBox="0 0 24 24"
+                                                                       class="Zi Zi--ArrowRight css-l8s9e4"
+                                                                       fill="currentColor"><path fill-rule="evenodd"
+                                                                                                 d="m13.248 12-4.025 3.78a.684.684 0 0 0 0 1.01.796.796 0 0 0 1.075 0l4.42-4.15a.867.867 0 0 0 0-1.28l-4.42-4.15a.796.796 0 0 0-1.075 0 .684.684 0 0 0 0 1.01L13.248 12Z"
+                                                                                                 clip-rule="evenodd"></path></svg>
+        </span>
+    </div>
+</div>
 <script>
+
+    document.getElementById("cover_btn").onclick = function () {
+        // 设置在此处单击#button时要发生的事件
+        var mc = document.getElementById("cover_img")
+        mc.style.display = 'none';
+    };
+
+    function change_prp_title() {
+        var prps = document.getElementById("prps_chart_title_id");
+        prps.innerText = "PRPS图谱-通道" + (G_selectedChannelIdx + 1)
+
+        var prpd = document.getElementById("prpd_chart_title_id");
+        prpd.innerText = "PRPD图谱-通道" + (G_selectedChannelIdx + 1)
+    }
+
+    function cover_invisiable() {
+        var mc = document.getElementById("cover_img")
+        if (mc) {
+            mc.style.display = 'none';
+        }
+    }
+
 
     var G_sample_status = 'close'
     var G_signal_list = []
@@ -130,6 +163,16 @@
         }
         return 20 * Math.log10(0.2 * cv) - 80;
         // return cv / 2;
+    }
+
+    function fix_c_bar(cv) {
+        if (cv === undefined || cv === null) {
+            return cv;
+        }
+        if (G_unit === 0) {
+            return cv;
+        }
+        return 20 * Math.log10(0.2 * cv);
     }
 
     function fetch_wave() {
@@ -213,6 +256,8 @@
         window.set_stat_table_page_type(type);
         window.update_header_page_type(type);
         if (type === 'see') {
+            cover_invisiable();
+            cover_invis
             time_echarts.dispatchAction({
                 type: 'takeGlobalCursor',
                 key: 'brush',
@@ -293,6 +338,11 @@
                 refreshHotChart();
             } else {
                 console.log("!!! window.G_page_type 错误  ")
+            }
+        } else {
+            if (G_page_type === 'sample') {
+                console.log("新列表为空，但是也要更新数据")
+                refresh_time_chart();
             }
         }
     }

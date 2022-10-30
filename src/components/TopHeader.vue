@@ -33,9 +33,9 @@ const sample_start_time = ref(new Date())
 const sampleSwitch = ref(false)
 const switchText = computed(() => {
   if (sampleSwitch.value) {
-    return "开启";
+    return "采集中";
   }
-  return "停止"
+  return "未采集"
 });
 
 (window as any).fixSampleBtnStatus = () => {

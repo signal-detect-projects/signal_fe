@@ -43,3 +43,7 @@ function secTotime(s) {
     }
     return t
 }
+
+function max_c_2k(c_v) {
+    return (Math.floor(c_v / 1000) + 1) * 1000;
+}

@@ -37,7 +37,7 @@ var bar_option = {
         }
     },
     xAxis3D: {
-        name: '',
+        name: '时间',
         type: 'time',
         nameTextStyle: {
             fontSize: 14
@@ -61,7 +61,7 @@ var bar_option = {
 
     },
     yAxis3D: {
-        name: '',
+        name: '相位',
         type: 'value',
         data: phases_arr,
         nameTextStyle: {
@@ -72,7 +72,7 @@ var bar_option = {
         interval: 45
     },
     zAxis3D: {
-        name: '',
+        name: '幅值',
         type: 'value',
         nameTextStyle: {
             fontSize: 14
@@ -81,22 +81,28 @@ var bar_option = {
             show: true, // 不显示坐标轴上的文字
             showMaxLabel: false,
             formatter: (value, index) => {
-                if (value == 0) {
-                    return ''
+                // if (value === 0) {
+                //     return ''
+                // }
+                if (window.G_unit === 0) {
+                    return (value.toFixed(0)) + '';
+                } else {
+                    return (value.toFixed(0) - 80) + '';
                 }
-                return value.toFixed(0);
             }
         },
-        min: 0,
+        min: '0',
         max: 'dataMax',
     },
     grid3D: {
-        boxWidth: 200,//x轴
+        boxWidth: 180,//x轴
         boxDepth: 150,//y轴
-        boxHeight: 90,
+        boxHeight: 140,
+        bottom: 100,
+        // top: 0,
         viewControl: {
             // projection: 'orthographic',
-            distance: 290,
+            distance: 300,
             autoRotate: false,
             // rotateSensitivity: 0,
             zoomSensitivity: 0,
@@ -201,8 +207,8 @@ function barMove() {
         let item = G_bar_data[i]
         let c_v = item['c_arr'][window.G_selectedChannelIdx];
         if (G_bar_data[i]['ts'] >= G_bar_left_t) {
-            let fix_c = window.fixC(c_v)
-            G_bar_z_max = Math.max(G_bar_z_max, fix_c);
+            let fix_c = window.fix_c_bar(c_v)
+            G_bar_z_max = Math.max(G_bar_z_max, c_v);
             tmp_data.push({
                 idx: item['idx'],
                 ts: item['ts'],
@@ -227,6 +233,7 @@ function barMove() {
 
     //console.log("bar_echarts.setOption", new Date(G_bar_left_t).Format("yyyy-MM-dd hh:mm:ss"))
     // console.log("tmp_data", G_bar_left_t, bar_right_t, tmp_data)
+    let bar_z_max_tmp_for_unit = window.fix_c_bar(G_bar_z_max)
     bar_echarts.setOption({
         xAxis3D: {
             min: "'" + G_bar_left_t + "'",
@@ -239,7 +246,7 @@ function barMove() {
             {
                 data: sin_data.map(function (item) {
                     return {
-                        value: [G_bar_left_t, item[1], G_bar_z_max * item[2]]
+                        value: [G_bar_left_t, item[1], bar_z_max_tmp_for_unit * item[2]]
                     };
                 }),
             },
@@ -341,7 +348,7 @@ function refresh3DBar() {
         tmp_data.push({
             idx: item['idx'],
             ts: item['ts'],
-            value: [item['ts'], window.fixPhase(item['phase']), window.fixC(c_v)]
+            value: [item['ts'], window.fixPhase(item['phase']), window.fix_c_bar(c_v)]
         })
         G_bar_right_idx = i;
     }

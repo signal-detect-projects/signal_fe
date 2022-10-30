@@ -241,7 +241,7 @@ time_echarts.getZr().on('click', param => {
     console.log("点击通道", index)
 
     window.G_selectedChannelIdx = index;
-
+    window.change_prp_title();
     let series_color = []
     for (let i = 0; i < 4; i++) {
         let color = G_time_chart_color[i][1];
@@ -324,6 +324,28 @@ function refresh_time_chart() {
     } else if (window.G_page_type === 'see') {
         list = window.G_catfilter_sublist
     }
+
+    list = list.slice()
+    let max_c = 0;
+    if (window.G_page_type === 'sample') {
+        //让时间轴随时间流动
+        //如果 最后一个10s 之内还没
+        let all_last_ts = null;
+        if (list.length > 0) {
+            all_last_ts = list[list.length - 1]['ts'];
+        }
+        let now_ts = new Date().getTime();
+        if (all_last_ts + 5 * 1000 < now_ts) {
+            list.push({
+                ts: now_ts,
+                c1: 0,
+                c2: 0,
+                c3: 0,
+                c4: 0,
+            })
+        }
+    }
+
     if (list === undefined || list.length === 0) {
         time_echarts.setOption({
             series: [
@@ -369,7 +391,9 @@ function refresh_time_chart() {
         let crr = [item['c1'], item['c2'], item['c3'], item['c4']]
         for (let i = 0; i < 4; i++) {
             if (crr[i]) {
-                c_arr[i] = c_arr[i] + window.fixC(crr[i])
+                // c_arr[i] = c_arr[i] + window.fixC(crr[i])
+                c_arr[i] = c_arr[i] + crr[i];
+                max_c = Math.max(max_c, c_arr[i])
             }
         }
         left_data = true;
@@ -377,7 +401,7 @@ function refresh_time_chart() {
     if (left_data) {
         for (let i = 0; i < 4; i++) {
             time_list[i].push({
-                name: last_time.toString(),
+                // name: last_time.toString(),
                 value: [
                     last_time,
                     c_arr[i]
@@ -385,18 +409,35 @@ function refresh_time_chart() {
             })
         }
     }
+
     let data_5_list = []
     for (let i = 0; i < time_list[0].length; i++) {
         let it = time_list[0][i]
         data_5_list.push({
-            name: it['name'],
+            // name: it['name'],
             value: [
                 it['value'][0], null
             ]
         })
     }
+
     // console.log(time_list)
+    max_c = window.max_c_2k(max_c)
     time_echarts.setOption({
+        yAxis: [
+            {
+                max: max_c,
+            },
+            {
+                max: max_c,
+            },
+            {
+                max: max_c,
+            },
+            {
+                max: max_c,
+            },
+        ],
         series: [
             {
                 data: time_list[0]

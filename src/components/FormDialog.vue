@@ -13,17 +13,18 @@
           <el-col :span="1">
           </el-col>
           <el-col :span="4">
-            <el-button @click="test_btn" type="primary" color="#3978F8">测试</el-button>
+            <el-button @click="test_btn" type="primary" color="#3978F8">连接</el-button>
           </el-col>
           <span style="font-size: x-small;color: #3978F8">{{ connectMessage }}</span>
         </el-form-item>
-
-        <el-radio-group v-model="form.line_channel">
-          <el-radio label="1" name="通道1">通道1</el-radio>
-          <el-radio label="2" name="通道2">通道2</el-radio>
-          <el-radio label="3" name="通道3">通道3</el-radio>
-          <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
-        </el-radio-group>
+        <el-form-item label="选择触发源">
+          <el-radio-group v-model="form.line_channel" :disabled="!query_ip_status">
+            <el-radio label="1" name="通道1">通道1</el-radio>
+            <el-radio label="2" name="通道2">通道2</el-radio>
+            <el-radio label="3" name="通道3">通道3</el-radio>
+            <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
+          </el-radio-group>
+        </el-form-item>
       </div>
       <div id="form_line_chart"></div>
     </div>
@@ -33,26 +34,26 @@
         <h3>填写通道名称和说明</h3>
         <el-form-item label="采集事件名称">
           <el-col :span="21">
-            <el-input v-model="form.name"/>
+            <el-input v-model="form.name" :disabled="!query_ip_status"/>
           </el-col>
         </el-form-item>
         <div class="channel_group_div">
           <el-form-item label="通道一" class="channel_text_space">
-            <el-input v-model="form.channel1Name" color="#3978F8"/>
+            <el-input v-model="form.channel1Name" :disabled="!query_ip_status" color="#3978F8"/>
           </el-form-item>
           <el-form-item label="通道二" style="position: relative;left: -20px" class="channel_text_space">
-            <el-input v-model="form.channel2Name"/>
+            <el-input v-model="form.channel2Name" :disabled="!query_ip_status"/>
           </el-form-item>
           <el-form-item label="通道三" class="channel_text_space">
-            <el-input v-model="form.channel3Name"/>
+            <el-input v-model="form.channel3Name" :disabled="!query_ip_status"/>
           </el-form-item>
           <el-form-item label="通道四" style="position: relative;left: -20px" class="channel_text_space">
-            <el-input v-model="form.channel4Name"/>
+            <el-input v-model="form.channel4Name" :disabled="!query_ip_status"/>
           </el-form-item>
         </div>
         <el-form-item label="说明" style="letter-spacing: 17px">
           <el-col :span="21">
-            <el-input v-model="form.note"/>
+            <el-input v-model="form.note" :disabled="!query_ip_status"/>
           </el-col>
         </el-form-item>
         <!--      通道属性设置-->
@@ -60,9 +61,9 @@
           <div class="channel_radio_block_list">
             <div class="channel_radio_block" v-for="i in 4" :key="i">
               <el-radio-group v-model="form.channelStateList[i-1]" class="ml-4" @change="channelStatusChange">
-                <el-radio label="0" size="small" :disabled="i===4 || channel_btn_status[i-1]">停止使用</el-radio>
-                <el-radio label="1" size="small" :disabled=" i===4 ||channel_btn_status[i-1]">投入使用</el-radio>
-                <el-radio label="2" size="small" :disabled=" i===4 ||channel_btn_status[i-1]">环境采集</el-radio>
+                <el-radio label="0" size="small" :disabled="!channel_btn_status[i-1]">停止使用</el-radio>
+                <el-radio label="1" size="small" :disabled="!channel_btn_status[i-1]">投入使用</el-radio>
+                <el-radio label="2" size="small" :disabled="!channel_btn_status[i-1]">环境采集</el-radio>
               </el-radio-group>
               <div class="down_arrow"></div>
             </div>
@@ -91,6 +92,7 @@
                     :min="1"
                     :max="99"
                     :precision="1" :step="0.1"
+                    :disabled="!space_input_status[0]"
                     size="small"
                     controls-position="right"
                 />
@@ -105,6 +107,7 @@
                     v-model="form.space23"
                     :min="1"
                     :max="99"
+                    :disabled="!space_input_status[1]"
                     :precision="1" :step="0.1"
                     size="small"
                     controls-position="right"
@@ -118,7 +121,7 @@
                     v-model="form.space34"
                     :min="0"
                     :max="99"
-                    :disabled="true"
+                    :disabled="!space_input_status[2]"
                     model-value="0"
                     :precision="1" :step="0.1"
                     size="small"
@@ -138,16 +141,21 @@
 
     <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="okFunc" style="min-width: 100px;min-height: 40px;font-size: 24px"
+        <el-button type="primary" @click="okFunc"
+                   style="min-width: 100px;min-height: 40px;font-size: 24px"
+                   :disabled="!query_ip_status"
                    color="#2D356C">确定</el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 <script lang="ts" setup>
-import {reactive, ref, watch} from 'vue'
+import {computed, reactive, ref, watch} from 'vue'
 
 const labelPosition = ref('left')
+
+const query_ip_status = ref(false);
+
 const form = reactive({
   name: '',
   ip: '127.0.0.1',
@@ -167,7 +175,31 @@ const centerDialogVisible = ref(false)
 
 const connectMessage = ref('')
 
-const channel_btn_status = [false, false, false];
+const channel_btn_status = computed(() => {
+  if (!query_ip_status.value) {
+    return [false, false, false, false];
+  }
+  return [true, true, true, false];
+});
+
+const space_input_status = computed(() => {
+  if (!query_ip_status.value) {
+    return [false, false, false];
+  }
+  let res = [false, false, false];
+  if (form.channelStateList[0] == "0") {
+    return res;
+  }
+  for (let i = 1; i < 3; i++) {
+    if (form.channelStateList[i] != "0") {
+      res[i - 1] = true;
+    } else {
+      break;
+    }
+  }
+
+  return res;
+});
 
 let progressPerArr = [14, 39, 63, 100]
 const progressPercent = ref(14);
@@ -194,7 +226,6 @@ const createFormLine = () => {
   console.log(domObj)
   const formLineChart = (window as any).echarts.init(domObj, null,
       {renderer: 'canvas'});
-// ,width: 554,height:400
   (window as any).formLineChart = formLineChart
   const formLineChartOption = {
     grid: {
@@ -346,8 +377,12 @@ function get_and_refresh_chart() {
   (window as any).qt_jsBridge.fetch_wave(JSON.stringify(str_p), function (json_str: string) {
     console.log("fetch_wave返回字符串")
     if (json_str !== undefined && json_str !== null && json_str.length > 0) {
-      let list = JSON.parse(json_str);
-      refreshFormLineChart(list);
+      let res_obj = JSON.parse(json_str);
+      if (res_obj['ch'] == form.line_channel) {
+        refreshFormLineChart(res_obj['list']);
+      } else {
+        console.log("ch 对不上，", res_obj['ch'], form.line_channel)
+      }
     }
     if (Go_on_wave.value) {
       console.log("setTimeout new");
@@ -365,6 +400,7 @@ const test_btn = () => {
     const res = JSON.parse(res_str);
     if (res['status'] !== undefined && res['status'] !== null) {
       connectMessage.value = "连接成功！";
+      query_ip_status.value = true
     } else {
       connectMessage.value = "连接失败";
     }
@@ -376,6 +412,7 @@ const test_btn = () => {
 watch(centerDialogVisible, (newValue, oldValue) => {
   if (!newValue) {
     //弹窗消失
+    query_ip_status.value = false;
     (window as any).fixSampleBtnStatus();
     connectMessage.value = '';
     Go_on_wave.value = false;
@@ -410,7 +447,7 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   width: 49%;
   overflow: hidden;
   float: left;
-  height: 514px;
+  height: 530px;
   padding: 20px;
 
   .left_top_wave_block {

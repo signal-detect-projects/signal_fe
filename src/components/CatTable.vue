@@ -16,12 +16,12 @@
     <el-table-column property="id" label="序号" width="60"/>
     <el-table-column property="Description" label="说明"/>
     <el-table-column property="Percentage" label="占比(%)"/>
-    <el-table-column property="T12" label="时差12"/>
-    <el-table-column property="T23" label="时差23"/>
-    <el-table-column property="T34" label="时差34"/>
-    <el-table-column property="T13" label="时差13"/>
-    <el-table-column property="T14" label="时差14"/>
-    <el-table-column property="T24" label="时差24"/>
+    <el-table-column property="T12" label="时差12(ns)"/>
+    <el-table-column property="T23" label="时差23(ns)"/>
+    <el-table-column property="T34" label="时差34(ns)"/>
+    <el-table-column property="T13" label="时差13(ns)"/>
+    <el-table-column property="T14" label="时差14(ns)"/>
+    <el-table-column property="T24" label="时差24(ns)"/>
   </el-table>
 
 </template>

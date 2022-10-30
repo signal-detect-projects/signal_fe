@@ -106,7 +106,7 @@
       </div>
       <div class="stat_text">传感器12间距：</div>
       <div class="text_value">
-        {{ data.space12 }}
+        {{ data.space12 }}{{ data.space12 === null || data.space12 === '--' || data.space12 === '' ? '' : 'm' }}
       </div>
     </div>
     <div class="stat_one_line">
@@ -115,7 +115,7 @@
       </div>
       <div class="stat_text">传感器23间距：</div>
       <div class="text_value">
-        {{ data.space23 }}
+        {{ data.space23 }}{{ data.space23 === null || data.space23 === '--' || data.space23 === '' ? '' : 'm' }}
       </div>
     </div>
     <div class="stat_one_line">
@@ -124,7 +124,7 @@
       </div>
       <div class="stat_text">传感器34间距：</div>
       <div class="text_value">
-        {{ data.space34 }}
+        {{ data.space34 }}{{ data.space34 === null || data.space34 === '--' || data.space34 === '' ? '' : 'm' }}
       </div>
     </div>
     <div class="stat_one_line">
@@ -190,7 +190,7 @@
         <img src="../assets/qh.png">
       </div>
       <div class="stat_text">相位偏移：</div>
-      <el-input-number v-model="phaseOffset" :min="-360" :max="360" :precision="1" @change="phaseChange" size="small"/>
+      <el-input-number v-model="phaseOffset" :precision="1" @change="phaseChange" size="small"/>
     </div>
   </div>
 </template>
@@ -220,6 +220,15 @@ const phaseOffset = ref(0);
 const local2_pagetype = ref('see');
 
 const phaseChange = () => {
+  if (phaseOffset.value < 0) {
+    phaseOffset.value = 359;
+  }
+  if (phaseOffset.value == 360) {
+    phaseOffset.value = 0;
+  }
+  if (phaseOffset.value > 360) {
+    phaseOffset.value = 1;
+  }
   console.log("相位改变", phaseOffset.value);
   (window as any).G_phase_offset = phaseOffset.value;
   (window as any).refreshHotChart();

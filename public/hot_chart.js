@@ -6,16 +6,20 @@ for (var i = 0; i <= 360; i++) {
 var hot_option = {
     animation: false,
     tooltip: {
-        // show: false
+        show: false
     },
     grid: [{
+        top:'15%',
         // right: 140,
         // left: 40
+        bottom:28
     }, {
+        top:'15%',
         width: '90%',
     }],
     xAxis: [{
         min: '0',
+        name: "相位",
         max: '360',
         type: 'category',
         interval: 45,
@@ -35,12 +39,21 @@ var hot_option = {
     }],
     yAxis: [{
         type: 'category',
+        name: "幅值",
         axisLabel: {
-            show: false, // 不显示坐标轴上的文字
+            show: true, // 不显示坐标轴上的文字
+            formatter: (value, index) => {
+                var num = Number(value).toFixed(0);
+                if (num > 10000) {
+                    return "";
+                }
+                return num + "";
+            }
         },
         splitLine: {
             show: false
         },
+
     }, {
         type: 'value',
         gridIndex: 1,
