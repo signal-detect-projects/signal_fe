@@ -182,13 +182,68 @@ body {
     width: 100%;
     height: 100%;
     /*background-color: #45b795;*/
-    background-image: url("../image/cover.jpeg");
+    background-image: url("../image/BJ.png");
     background-repeat: no-repeat;
     background-size: cover;
     position: fixed;
     top: 0;
     left: 0;
 }
+
+#cover_btn {
+    z-index: 200;
+    background-image: url("../image/JR.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: inline-block;
+    position: relative;
+    width: 242px;
+    height: 86px;
+    left: calc(50% - 121px);
+    top: 60%;
+}
+
+.cover_text {
+    display: inline-block;
+    position: absolute;
+    top: 25%;
+    left: calc(50% - 300px);
+    width: 600px;
+
+}
+
+.cover_big_text {
+    font-size: 80px;
+    font-family: YouSheBiaoTiHei, serif;
+    font-weight: 800;
+    width: 600px;
+    text-align: center;
+    color: #FEFEFE;
+}
+
+.cover_s_text {
+    font-size: 36px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    color: #FEFEFE;
+    width: 600px;
+    text-align: center;
+    opacity: 0.6;
+}
+
+.gs_text {
+    width: 600px;
+    text-align: center;
+    display: inline-block;
+    position: absolute;
+    left: calc(50% - 300px);
+    top: 78%;
+    font-size: 30px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    color: #FEFEFE;
+}
+
 
 .css-hnkyg1 {
     box-sizing: border-box;

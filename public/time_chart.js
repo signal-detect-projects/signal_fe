@@ -313,6 +313,15 @@ function renderBrushed(params) {
 
 time_echarts.on('brushEnd', renderBrushed); //圈选结束后的回调
 
+time_echarts.dispatchAction({
+    type: 'takeGlobalCursor',
+    key: 'brush',
+    brushOption: {
+        brushType: 'lineX',
+        brushMode: 'single',
+        gridIndex: 4
+    },
+});
 
 var one_duration = 10 * 1000
 
