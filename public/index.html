@@ -256,7 +256,6 @@
         window.update_header_page_type(type);
         if (type === 'see') {
             cover_invisiable();
-            cover_invis
             time_echarts.dispatchAction({
                 type: 'takeGlobalCursor',
                 key: 'brush',
@@ -419,7 +418,7 @@
         G_catfilter_sublist = []
         G_bar_left_t = 0
         G_bar_left_idx = 0
-        G_bar_right_idx = []
+        G_bar_right_idx = 0
         G_bar_data = []
         G_first_come_data = true;
 
@@ -431,7 +430,18 @@
     // fetch_data();
     // setTimeout(() => {
     //     setPageType('see');
-    // }, 10)
+    //     // refresh_stat_data()
+    // }, 100)
+
+    // function loop() {
+    //     refresh_time_chart();
+    //     setTimeout(() => {
+    //         // setPageType('see');
+    //         loop();
+    //     }, 1000)
+    // }
+    //
+    // loop();
 
 
     // G_fetch_dataHandle = setInterval("fetch_data()", 5000)

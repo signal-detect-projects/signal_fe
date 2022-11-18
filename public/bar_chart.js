@@ -193,13 +193,22 @@ function barMove() {
     // } else {
     //
     // }
+
+    if (window.G_page_type === 'see' && G_bar_right_idx >= (G_bar_data.length - 1)) {
+        //查看模式下，走到末尾，重新开始循环
+        console.log("查看模式下，走到末尾，重新开始循环")
+        G_bar_left_t = G_all_first_time - G_bar_x_len * 1000
+        G_bar_left_idx = 0
+        G_bar_right_idx = 0;
+        return;
+    }
+
     let now_ts = new Date().getTime();
     if (window.G_page_type === 'see' || now_ts >= G_bar_left_t + G_bar_x_len * 1000) {
         //只有在 当前时间超过了最右边的范围，才往右走
         G_bar_left_t = G_bar_left_t + G_bar_speed / (1000 / G_bar_timeout);//delta*(1000/100) = speed
     }
     let bar_right_t = G_bar_left_t + G_bar_x_len * 1000
-
     for (let i = G_bar_left_idx; i < G_bar_data.length; i++) {
         if (G_bar_data[i]['ts'] > bar_right_t) {
             break;

@@ -231,7 +231,7 @@ time_echarts.getZr().on('click', param => {
     console.log('有效点击', param)
     // 判断点击的坐标在不在坐标系内
     while (!time_echarts.containPixel({gridIndex: index}, list) && index < 4) {
-        index++
+        index++;
     }
     // 如果 index > 3, 说明点击的是空白区域
     if (index > 3) {
@@ -312,18 +312,20 @@ function renderBrushed(params) {
 }
 
 time_echarts.on('brushEnd', renderBrushed); //圈选结束后的回调
+// if (window.G_page_type === 'see') {
+//     time_echarts.dispatchAction({
+//         type: 'takeGlobalCursor',
+//         key: 'brush',
+//         brushOption: {
+//             brushType: 'lineX',
+//             brushMode: 'single',
+//             gridIndex: 4
+//         },
+//     });
+// }
 
-time_echarts.dispatchAction({
-    type: 'takeGlobalCursor',
-    key: 'brush',
-    brushOption: {
-        brushType: 'lineX',
-        brushMode: 'single',
-        gridIndex: 4
-    },
-});
 
-var one_duration = 10 * 1000
+var one_duration = 5 * 1000
 
 function refresh_time_chart() {
     console.log("refresh_time_chart()")
@@ -335,16 +337,26 @@ function refresh_time_chart() {
     }
 
     list = list.slice()
+
     let max_c = 0;
     if (window.G_page_type === 'sample') {
+        let sample_start_ts = window.sample_start_date.getTime()
+        // let sample_start_ts = 1668783792085
+        list.unshift({
+            ts: sample_start_ts,
+            c1: 0,
+            c2: 0,
+            c3: 0,
+            c4: 0,
+        })
         //让时间轴随时间流动
         //如果 最后一个10s 之内还没
-        let all_last_ts = null;
+        let all_last_ts = 0;
         if (list.length > 0) {
             all_last_ts = list[list.length - 1]['ts'];
         }
         let now_ts = new Date().getTime();
-        if (all_last_ts + 5 * 1000 < now_ts) {
+        if (all_last_ts + one_duration < now_ts) {
             list.push({
                 ts: now_ts,
                 c1: 0,
@@ -375,44 +387,34 @@ function refresh_time_chart() {
         });
         return;
     }
-    let last_time = new Date(list[0]['ts'])
-    let next_ts = last_time.getTime() + one_duration
-    let c_arr = [0, 0, 0, 0]
+    // let last_time = new Date(list[0]['ts'])
+
     let time_list = [[], [], [], []]
-    let left_data = false;//是否有残留数据
-    for (let j = 0; j < list.length; j++) {
-        let item = list[j]
-        if (item['ts'] > next_ts) {
+    // let left_data = false;//是否有残留数据
+    let now_ts = new Date().getTime();
+    let last_index = 0;
+    let right_stop_ts = window.G_page_type === 'see' ? list[list.length - 1]['ts'] : now_ts;
+    for (let ts = list[0]['ts']; ts <= right_stop_ts; ts = ts + one_duration) {
+        let c_arr = [0, 0, 0, 0];
+        for (let i = last_index; i < list.length; i++) {
+            let item = list[i];
+            if (item['ts'] > ts + one_duration) {
+                break;
+            }
+            let crr = [item['c1'], item['c2'], item['c3'], item['c4']]
             for (let i = 0; i < 4; i++) {
-                time_list[i].push({
-                    name: last_time.toString(),
-                    value: [
-                        last_time,
-                        c_arr[i]
-                    ]
-                })
+                if (crr[i]) {
+                    c_arr[i] = c_arr[i] + crr[i];
+                    max_c = Math.max(max_c, c_arr[i])
+                }
             }
-            left_data = false;
-            c_arr = [0, 0, 0, 0]
-            last_time = new Date(next_ts)
-            next_ts = last_time.getTime() + one_duration
+            last_index = i + 1;
         }
-        let crr = [item['c1'], item['c2'], item['c3'], item['c4']]
-        for (let i = 0; i < 4; i++) {
-            if (crr[i]) {
-                // c_arr[i] = c_arr[i] + window.fixC(crr[i])
-                c_arr[i] = c_arr[i] + crr[i];
-                max_c = Math.max(max_c, c_arr[i])
-            }
-        }
-        left_data = true;
-    }
-    if (left_data) {
         for (let i = 0; i < 4; i++) {
             time_list[i].push({
-                // name: last_time.toString(),
+                name: ts,
                 value: [
-                    last_time,
+                    ts,
                     c_arr[i]
                 ]
             })

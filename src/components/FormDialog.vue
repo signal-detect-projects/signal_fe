@@ -89,7 +89,7 @@
               <div class="dis_input_item">
                 <el-input-number
                     v-model="form.space12"
-                    :min="1"
+                    :min="0"
                     :max="99"
                     :precision="1" :step="0.1"
                     :disabled="!space_input_status[0]"
@@ -105,7 +105,7 @@
               <div class="dis_input_item">
                 <el-input-number
                     v-model="form.space23"
-                    :min="1"
+                    :min="0"
                     :max="99"
                     :disabled="!space_input_status[1]"
                     :precision="1" :step="0.1"
@@ -197,7 +197,6 @@ const space_input_status = computed(() => {
       break;
     }
   }
-
   return res;
 });
 
