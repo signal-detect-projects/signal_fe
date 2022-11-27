@@ -187,7 +187,7 @@ body {
     background-size: cover;
     position: fixed;
     top: 0;
-    left: 0;
+    left: -200%;
 }
 
 #cover_btn {

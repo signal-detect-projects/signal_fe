@@ -255,7 +255,6 @@
         window.set_stat_table_page_type(type);
         window.update_header_page_type(type);
         if (type === 'see') {
-            cover_invisiable();
             time_echarts.dispatchAction({
                 type: 'takeGlobalCursor',
                 key: 'brush',
@@ -265,6 +264,11 @@
                     gridIndex: 4
                 },
             });
+        } else {
+            var mc = document.getElementById("cover_img")
+            if (mc) {
+                mc.style.left = 0;
+            }
         }
     }
 
