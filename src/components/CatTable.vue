@@ -83,7 +83,7 @@ const pushSelection = (rows?: User[]) => {
 }
 
 const handleSelectionChange = (val: Line[]) => {
-  multipleSelection.value = val
+  multipleSelection.value = val;
 }
 
 const local_page_type = ref('see');

@@ -286,6 +286,8 @@
                 add_data_main(json);
             });
         })
+    } else {
+        console.log("window.qt 不存在")
     }
 
     function add_data_main(json) {
@@ -431,10 +433,11 @@
         refreshHotChart();
     }
 
-    // fetch_data();
+
     // setTimeout(() => {
     //     setPageType('see');
     //     // refresh_stat_data()
+    //     fetch_data();
     // }, 100)
 
     // function loop() {

@@ -298,10 +298,13 @@ function refresh3DBar() {
     if (window.G_page_type === 'sample') {
         list = window.G_signal_list
     } else {//查看
-        if (window.G_data_sublist.length === 0) {
-            window.G_data_sublist = window.G_catfilter_sublist
-        }
         list = window.G_data_sublist
+        if (window.G_data_sublist.length === 0) {
+            list = window.G_catfilter_sublist
+            if (window.G_catfilter_sublist.length === 0) {
+                list = window.G_signal_list;
+            }
+        }
     }
     if (list.length === 0) {
         return;
