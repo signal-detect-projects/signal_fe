@@ -1,9 +1,19 @@
 <template>
   <el-dialog
       v-model="centerDialogVisible"
-      width="80%"
+      width="70%"
       align-center
+      :show-close="false"
   >
+    <template #header>
+      <div class="my_dialog_header">
+        <span style="font-size: 28px;font-weight: 400;display: inline-block;margin-left: 20px">设置参数</span>
+        <div style="display: inline-block;width: 30px;height: 30px;position: absolute;right: 18px;cursor: pointer "
+             @click="closeDialog">
+          <img src="../assets/new/XX.png" style="width: 100%;height: 100%">
+        </div>
+      </div>
+    </template>
     <div class="form_left_div">
       <div class="left_top_wave_block">
         <el-form-item label="设备IP">
@@ -13,30 +23,100 @@
           <el-col :span="1">
           </el-col>
           <el-col :span="4">
-            <el-button @click="test_btn" type="primary" color="#3978F8">连接</el-button>
+            <el-button @click="test_btn" type="primary" color="#7D7D7D">连接</el-button>
           </el-col>
           <span style="font-size: x-small;color: #3978F8">{{ connectMessage }}</span>
         </el-form-item>
-        <el-form-item label="选择触发源">
-          <el-radio-group v-model="form.line_channel" :disabled="!query_ip_status">
-            <el-radio label="1" name="通道1">通道1</el-radio>
-            <el-radio label="2" name="通道2">通道2</el-radio>
-            <el-radio label="3" name="通道3">通道3</el-radio>
-            <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
-          </el-radio-group>
-        </el-form-item>
-      </div>
-      <div id="form_line_chart"></div>
-    </div>
-
-    <div class="form_right_div">
-      <el-form :model="form" label-width="120px" :label-position="labelPosition">
-        <h3>填写通道名称和说明</h3>
         <el-form-item label="采集事件名称">
           <el-col :span="21">
             <el-input v-model="form.name" :disabled="!query_ip_status"/>
           </el-col>
         </el-form-item>
+
+      </div>
+
+      <div id="channel_prop">
+        <div class="channel_radio_block_list">
+          <div class="channel_radio_block" v-for="i in 4" :key="i">
+            <el-radio-group v-model="form.channelStateList[i-1]" class="ml-4" @change="channelStatusChange">
+              <el-radio label="0" size="small" :disabled="!channel_btn_status[i-1]">停止使用</el-radio>
+              <el-radio label="1" size="small" :disabled="!channel_btn_status[i-1]">投入使用</el-radio>
+              <el-radio label="2" size="small" :disabled="!channel_btn_status[i-1]">环境采集</el-radio>
+            </el-radio-group>
+            <div class="down_arrow"></div>
+          </div>
+        </div>
+        <div class="channel_prop_line_block">
+          <el-progress :show-text="false" :percentage="progressPerArr[lastValidChannelIdx]" :duration="0">
+          </el-progress>
+
+          <div class="icon_list">
+            <div class="icon_div" v-for="index in 4" :key="index">
+              <img v-if="form.channelStateList[index-1]==='0'" src="../assets/channel_icon_close.png">
+              <img v-else-if="form.channelStateList[index-1]==='1'" src="../assets/channel_icon_open.png">
+              <img v-else src="../assets/channel_icon_env.png">
+            </div>
+          </div>
+
+        </div>
+        <!--          进度条结束-->
+        <div class="dis_div_list">
+          <div class="dis_text_item">
+            <span>传感器1</span>
+
+            <div class="dis_input_item">
+              <el-input-number
+                  v-model="form.space12"
+                  :min="0"
+                  :max="99"
+                  :precision="1" :step="0.1"
+                  :disabled="!space_input_status[0]"
+                  size="small"
+                  controls-position="right"
+              />
+            </div>
+          </div>
+
+
+          <div class="dis_text_item">
+            <span>传感器2</span>
+            <div class="dis_input_item">
+              <el-input-number
+                  v-model="form.space23"
+                  :min="0"
+                  :max="99"
+                  :disabled="!space_input_status[1]"
+                  :precision="1" :step="0.1"
+                  size="small"
+                  controls-position="right"
+              />
+            </div>
+          </div>
+          <div class="dis_text_item">
+            <span>传感器3</span>
+            <div class="dis_input_item">
+              <el-input-number
+                  v-model="form.space34"
+                  :min="0"
+                  :max="99"
+                  :disabled="!space_input_status[2]"
+                  model-value="0"
+                  :precision="1" :step="0.1"
+                  size="small"
+                  controls-position="right"
+              />
+            </div>
+          </div>
+
+          <div class="dis_text_item">
+            <span>传感器4</span>
+          </div>
+
+        </div>
+      </div>
+
+
+      <el-form :model="form" label-width="120px" :label-position="labelPosition">
         <div class="channel_group_div">
           <el-form-item label="通道一" class="channel_text_space">
             <el-input v-model="form.channel1Name" :disabled="!query_ip_status" color="#3978F8"/>
@@ -57,86 +137,22 @@
           </el-col>
         </el-form-item>
         <!--      通道属性设置-->
-        <div id="channel_prop">
-          <div class="channel_radio_block_list">
-            <div class="channel_radio_block" v-for="i in 4" :key="i">
-              <el-radio-group v-model="form.channelStateList[i-1]" class="ml-4" @change="channelStatusChange">
-                <el-radio label="0" size="small" :disabled="!channel_btn_status[i-1]">停止使用</el-radio>
-                <el-radio label="1" size="small" :disabled="!channel_btn_status[i-1]">投入使用</el-radio>
-                <el-radio label="2" size="small" :disabled="!channel_btn_status[i-1]">环境采集</el-radio>
-              </el-radio-group>
-              <div class="down_arrow"></div>
-            </div>
-          </div>
-          <div class="channel_prop_line_block">
-            <el-progress :show-text="false" :percentage="progressPerArr[lastValidChannelIdx]" :duration="0">
-            </el-progress>
 
-            <div class="icon_list">
-              <div class="icon_div" v-for="index in 4" :key="index">
-                <img v-if="form.channelStateList[index-1]==='0'" src="../assets/channel_icon_close.png">
-                <img v-else-if="form.channelStateList[index-1]==='1'" src="../assets/channel_icon_open.png">
-                <img v-else src="../assets/channel_icon_env.png">
-              </div>
-            </div>
-
-          </div>
-          <!--          进度条结束-->
-          <div class="dis_div_list">
-            <div class="dis_text_item">
-              <span>传感器1</span>
-
-              <div class="dis_input_item">
-                <el-input-number
-                    v-model="form.space12"
-                    :min="0"
-                    :max="99"
-                    :precision="1" :step="0.1"
-                    :disabled="!space_input_status[0]"
-                    size="small"
-                    controls-position="right"
-                />
-              </div>
-            </div>
-
-
-            <div class="dis_text_item">
-              <span>传感器2</span>
-              <div class="dis_input_item">
-                <el-input-number
-                    v-model="form.space23"
-                    :min="0"
-                    :max="99"
-                    :disabled="!space_input_status[1]"
-                    :precision="1" :step="0.1"
-                    size="small"
-                    controls-position="right"
-                />
-              </div>
-            </div>
-            <div class="dis_text_item">
-              <span>传感器3</span>
-              <div class="dis_input_item">
-                <el-input-number
-                    v-model="form.space34"
-                    :min="0"
-                    :max="99"
-                    :disabled="!space_input_status[2]"
-                    model-value="0"
-                    :precision="1" :step="0.1"
-                    size="small"
-                    controls-position="right"
-                />
-              </div>
-            </div>
-
-            <div class="dis_text_item">
-              <span>传感器4</span>
-            </div>
-
-          </div>
-        </div>
       </el-form>
+
+
+    </div>
+
+    <div class="form_right_div">
+      <el-form-item label="选择触发源">
+        <el-radio-group v-model="form.line_channel" :disabled="!query_ip_status">
+          <el-radio label="1" name="通道1">通道1</el-radio>
+          <el-radio label="2" name="通道2">通道2</el-radio>
+          <el-radio label="3" name="通道3">通道3</el-radio>
+          <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <div id="form_line_chart"></div>
     </div>
 
     <template #footer>
@@ -144,7 +160,7 @@
         <el-button type="primary" @click="okFunc"
                    style="min-width: 100px;min-height: 40px;font-size: 24px"
                    :disabled="!query_ip_status"
-                   color="#2D356C">确定</el-button>
+                   color="#7D7D7D">确定</el-button>
       </span>
     </template>
   </el-dialog>
@@ -171,7 +187,11 @@ const form = reactive({
   channelStateList: ["0", "0", "0", "0"],
   note: ""
 })
-const centerDialogVisible = ref(false)
+const centerDialogVisible = ref(true);//TODO_XX
+
+const closeDialog = function () {
+  centerDialogVisible.value = false;
+}
 
 const connectMessage = ref('')
 
@@ -302,7 +322,7 @@ const Go_on_wave = ref(true);
 
 //这里开始真正的采集
 const okFunc = () => {
-  console.log("表单确定")
+  console.log("表单确定");
   centerDialogVisible.value = false;
   (window as any).G_sample_status = 'open';
   let qt_jsBridge = (window as any).qt_jsBridge;
@@ -323,11 +343,12 @@ const okFunc = () => {
   update_param['sampleTime'] = new Date().Format('yyyy-MM-dd hh:mm:ss');
   (window as any).update_stat(form);
 
-  // if ((window as any).form_wave_interval !== undefined && (window as any).form_wave_interval !== null) {
   console.log("cancel form_wave_interval")
   clearTimeout((window as any).form_wave_interval);
   Go_on_wave.value = false;
-  // }
+
+  (window as any).G_sample_status = 'open';
+  (window as any).fixSampleBtnStatus();
   return {}
 }
 
@@ -450,7 +471,8 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   padding: 20px;
 
   .left_top_wave_block {
-    margin-left: 80px;
+    //margin-left: 80px;
+
   }
 }
 
@@ -459,7 +481,7 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   height: 400px;
   //border: 1px solid blue;
   margin: auto;
-  border: 1px solid #F2F3F5;
+  border: 1px solid black;
   box-shadow: 3px 3px 12px 0px rgba(228, 228, 228, 0.5);
   border-radius: 10px;
 
@@ -468,6 +490,38 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   }
 }
 
+.channel_group_div {
+  //display: flex;
+  height: 100px;
+
+  .el-form-item {
+    width: 50%;
+    float: left;
+
+    label {
+      width: 104px !important;
+      text-align: center !important;
+    }
+
+    .el-input {
+      width: 191px !important;
+    }
+  }
+}
+
+.el-form-item__label {
+  max-width: 104px;
+  //text-align: justify;
+  //text-align-last: justify;
+  //display: flex;
+  //display: block;
+  //justify-content: space-evenly;
+  word-spacing: 30px !important;
+}
+
+//.el-button {
+//  width: 40px !important;
+//}
 
 .form_right_div {
   width: 49%;
@@ -475,44 +529,16 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   float: right;
   height: 600px;
   padding: 20px;
-
-  .el-button {
-    width: 40px !important;
-  }
-
-  .el-form-item__label {
-    max-width: 104px;
-    //text-align: justify;
-    //text-align-last: justify;
-    //display: flex;
-    //display: block;
-    //justify-content: space-evenly;
-    word-spacing: 30px !important;
-  }
-
-  .channel_group_div {
-    //display: flex;
-    height: 100px;
-
-    .el-form-item {
-      width: 50%;
-      float: left;
-
-      label {
-        width: 104px !important;
-        text-align: center !important;
-      }
-
-      .el-input {
-        width: 191px !important;
-      }
-    }
-  }
+  border-left: 2px solid #BFBFBF ;
 }
 
 #channel_prop {
   width: 90%;
   margin: auto;
+
+  .el-radio-group {
+    background: #E5E5E5 !important;
+  }
 
   .dis_div_list {
     display: flex;
@@ -608,4 +634,27 @@ watch(centerDialogVisible, (newValue, oldValue) => {
     }
   }
 }
+
+
+.el-dialog__header {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog {
+  background: #EBEDEE !important;
+}
+
+.my_dialog_header {
+  height: 50px;
+  background-color: #D6D6D6;
+  display: flex;
+  align-items: center;
+  position: relative;
+
+}
+
+//.el-dialog__header {
+//  display: none !important;
+//}
 </style>

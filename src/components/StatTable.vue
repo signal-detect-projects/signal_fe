@@ -1,17 +1,8 @@
 <template>
   <div class="topBbb">
-    <!--    <div class="stat_one_line">-->
-    <!--      <div class="text_icon">-->
-    <!--        <img src="../assets/CJ.png">-->
-    <!--      </div>-->
-    <!--      <div class="stat_text">采集名称：</div>-->
-    <!--      <div class="text_value">-->
-    <!--        {{ data.name }}-->
-    <!--      </div>-->
-    <!--    </div>-->
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/SJ.png">
+        <img src="../assets/new/time.png">
       </div>
       <div class="stat_text">采集时间：</div>
       <div class="text_value">
@@ -20,7 +11,7 @@
     </div>
     <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
-        <img src="../assets/SJ.png">
+        <img src="../assets/new/time2.png">
       </div>
       <div class="stat_text">起点时间：</div>
       <div class="text_value">
@@ -29,7 +20,7 @@
     </div>
     <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
-        <img src="../assets/SJ.png">
+        <img src="../assets/new/time2.png">
       </div>
       <div class="stat_text">终点时间：</div>
       <div class="text_value">
@@ -38,71 +29,28 @@
     </div>
 
 
-    <div class="two_col_lin" v-if="local2_pagetype==='see'">
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/SJ.png">
-        </div>
-        <div class="stat_text_2">放电时长：</div>
-        <div class="text_value">
-          {{ data.duration }}
-        </div>
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
+      <div class="text_icon">
+        <img src="../assets/new/time2.png">
       </div>
-      <div class="col_1">
-        <div class="text_icon">
-          <img src="../assets/xhs.png">
-        </div>
-        <div class="stat_text_2">区段信号数量：</div>
-        <div class="text_value">
-          {{ data.signalNum }}
-        </div>
+      <div class="stat_text">放电时长：</div>
+      <div class="text_value">
+        {{ data.duration }}
+      </div>
+    </div>
+    <div class="stat_one_line" v-if="local2_pagetype==='see'">
+      <div class="text_icon">
+        <img src="../assets/new/num.png">
+      </div>
+      <div class="stat_text">区段信号数量：</div>
+      <div class="text_value">
+        {{ data.signalNum }}
       </div>
     </div>
 
-    <!--    <div class="two_col_lin">-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/cgq.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">传感器12间距：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.space12 }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/cgq.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">传感器23间距：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.space23 }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
-    <!--    <div class="two_col_lin">-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/cgq.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">传感器34间距：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.space34 }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div class="col_1">-->
-    <!--        <div class="text_icon">-->
-    <!--          <img src="../assets/xh.png">-->
-    <!--        </div>-->
-    <!--        <div class="stat_text_2">信号最大值：</div>-->
-    <!--        <div class="text_value">-->
-    <!--          {{ data.signalMax }}-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
-
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/cgq.png">
+        <img src="../assets/new/gap.png">
       </div>
       <div class="stat_text">传感器12间距：</div>
       <div class="text_value">
@@ -111,7 +59,7 @@
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/cgq.png">
+        <img src="../assets/new/gap.png">
       </div>
       <div class="stat_text">传感器23间距：</div>
       <div class="text_value">
@@ -120,7 +68,7 @@
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/cgq.png">
+        <img src="../assets/new/gap.png">
       </div>
       <div class="stat_text">传感器34间距：</div>
       <div class="text_value">
@@ -129,7 +77,7 @@
     </div>
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/xh.png">
+        <img src="../assets/new/max.png">
       </div>
       <div class="stat_text">信号最大值：</div>
       <div class="text_value">
@@ -137,36 +85,9 @@
       </div>
     </div>
 
-    <!--    <div class="stat_one_line">-->
-    <!--      <div class="text_icon">-->
-    <!--        <img src="../assets/TD1.png">-->
-    <!--      </div>-->
-    <!--      <div class="stat_text">通道2名称：</div>-->
-    <!--      <div class="text_value">-->
-    <!--        {{ data.channelNames[1] }}-->
-    <!--      </div>-->
-    <!--    </div>-->
-    <!--    <div class="stat_one_line">-->
-    <!--      <div class="text_icon">-->
-    <!--        <img src="../assets/TD1.png">-->
-    <!--      </div>-->
-    <!--      <div class="stat_text">通道3名称：</div>-->
-    <!--      <div class="text_value">-->
-    <!--        {{ data.channelNames[2] }}-->
-    <!--      </div>-->
-    <!--    </div>-->
-    <!--    <div class="stat_one_line">-->
-    <!--      <div class="text_icon">-->
-    <!--        <img src="../assets/TD1.png">-->
-    <!--      </div>-->
-    <!--      <div class="stat_text">通道4名称：</div>-->
-    <!--      <div class="text_value">-->
-    <!--        {{ data.channelNames[3] }}-->
-    <!--      </div>-->
-    <!--    </div>-->
     <div class="stat_one_line">
       <div class="text_icon">
-        <img src="../assets/sm.png">
+        <img src="../assets/new/note.png">
       </div>
       <div class="stat_text">说明：</div>
       <div class="text_value">
@@ -175,7 +96,7 @@
     </div>
     <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
-        <img src="../assets/qh.png">
+        <img src="../assets/new/unit.png">
       </div>
       <div class="stat_text">切换Y单位：</div>
       <div class="unit_radio">
@@ -187,7 +108,7 @@
     </div>
     <div class="stat_one_line" v-if="local2_pagetype==='see'">
       <div class="text_icon">
-        <img src="../assets/qh.png">
+        <img src="../assets/new/phase.png">
       </div>
       <div class="stat_text">相位偏移：</div>
       <el-input-number v-model="phaseOffset" :precision="1" @change="phaseChange" size="small"/>
@@ -247,6 +168,8 @@ const changeUnit = () => {
   }
   (window as any).refresh_time_chart();
   (window as any).refreshHotChart();
+  (window as any).updateBarChartUnit(unit.value);
+  (window as any).updateHotChartUnit(unit.value);
 };
 
 (window as any).update_stat = function (obj: any) {
@@ -306,8 +229,8 @@ const changeUnit = () => {
     width: 131px;
     font-size: 16px;
     font-family: Microsoft YaHei;
-    font-weight: 400;
-    opacity: 0.6;
+    //font-weight: 400;
+    opacity: 0.8;
     padding-left: 10px;
     text-align: justify;
     text-align-last: justify;
@@ -351,7 +274,7 @@ const changeUnit = () => {
     font-size: 16px;
     font-family: Microsoft YaHei;
     font-weight: 400;
-    opacity: 0.6;
+    opacity: 0.8;
     padding-left: 10px;
     text-align: justify;
     text-align-last: justify;

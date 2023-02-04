@@ -9,17 +9,17 @@ var hot_option = {
         show: false
     },
     grid: [{
-        top:'15%',
+        top: '15%',
         // right: 140,
         // left: 40
-        bottom:28
+        bottom: 28
     }, {
-        top:'15%',
+        top: '15%',
         width: '90%',
     }],
     xAxis: [{
         min: '0',
-        name: "相位",
+        name: "相位(度)",
         max: '360',
         type: 'category',
         interval: 45,
@@ -39,7 +39,7 @@ var hot_option = {
     }],
     yAxis: [{
         type: 'category',
-        name: "幅值",
+        name: "幅值(mV)",
         axisLabel: {
             show: true, // 不显示坐标轴上的文字
             formatter: (value, index) => {
@@ -117,6 +117,15 @@ var hot_echarts = echarts.init(document.getElementById('hot_chart'), null, {rend
 hot_echarts.setOption(hot_option);
 var G_Hot_chart_sig_num = 360;
 var G_Hot_numMax = 0
+
+
+function updateHotChartUnit(unit) {
+    hot_echarts.setOption({
+        yAxis: [{
+            name: '幅值(' + unit + ')'
+        }]
+    });
+}
 
 // 更新热力图
 function refreshHotChart() {

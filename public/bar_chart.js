@@ -37,7 +37,7 @@ var bar_option = {
         }
     },
     xAxis3D: {
-        name: '时间',
+        name: '时间(秒)',
         type: 'time',
         nameTextStyle: {
             fontSize: 14
@@ -61,7 +61,7 @@ var bar_option = {
 
     },
     yAxis3D: {
-        name: '相位',
+        name: '相位(度)',
         type: 'value',
         data: phases_arr,
         nameTextStyle: {
@@ -72,7 +72,7 @@ var bar_option = {
         interval: 45
     },
     zAxis3D: {
-        name: '幅值',
+        name: '幅值(mV)',
         type: 'value',
         nameTextStyle: {
             fontSize: 14
@@ -98,8 +98,8 @@ var bar_option = {
         boxWidth: 180,//x轴
         boxDepth: 150,//y轴
         boxHeight: 140,
-        bottom: 100,
-        // top: 0,
+        // bottom: 100,
+        top: 0,
         viewControl: {
             // projection: 'orthographic',
             distance: 300,
@@ -280,6 +280,14 @@ function clear_3d_bar_chart() {
             }
         ],
     })
+}
+
+function updateBarChartUnit(unit) {
+    bar_echarts.setOption({
+        zAxis3D: {
+            name: '幅值(' + unit + ')'
+        }
+    });
 }
 
 /**

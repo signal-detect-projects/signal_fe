@@ -9,26 +9,30 @@
       <span class="header_text">{{ sample_duration }}</span>
     </div>
     <div class="top_num">
-      <span>信号总数量：</span>
+      <span>信号总量：</span>
       <span class="header_text">{{ signal_num }}</span>
     </div>
     <div class="top_menu" v-if="local_page_type==='sample'">
       <span>采集状态：</span>
-      <span :class="sampleSwitch? 'top_menu_switchText_class_open' : 'top_menu_switchText_class_close'   ">{{
+      <span
+          :class="sampleSwitch? 'top_menu_switchText_class_open header_text' : 'top_menu_switchText_class_close header_text'   ">{{
           switchText
         }}</span>
-      <el-switch
-          v-model="sampleSwitch"
-          size="small"
-          @change="changeSampleStatus"/>
     </div>
+    <div class="top_menu" v-if="local_page_type==='sample'">
+      <span>采集开关：</span>
+      <el-button :color="sampleSwitch?'#A51212' : '#73767a'  " @click="changeSampleStatus()">
+        {{ sampleSwitch ? '停止' : '开始' }}
+      </el-button>
+    </div>
+
+
   </div>
 </template>
 
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 
-const sample_start_time = ref(new Date())
 
 const sampleSwitch = ref(false)
 const switchText = computed(() => {
@@ -65,17 +69,16 @@ const signal_num = ref(0);
 
 
 const changeSampleStatus = () => {
-  if (sampleSwitch.value) {
+  if (!sampleSwitch.value) {
     //点击开始采集
     (window as any).openDialogFunc();
-    sample_start_time.value = new Date();
   } else {
     //点击关闭采集
     let qt_jsBridge = (window as any).qt_jsBridge;
     if (qt_jsBridge) {
       console.log("js stop_sample_thread")
       qt_jsBridge.stop_sample_thread(function (ret: any) {
-        console.log("停止采集接口返回：", ret)
+        console.log("停止采集接口返回：", ret);
       });
     }
     (window as any).clear_sample_interval()
@@ -104,16 +107,15 @@ const local_page_type = ref('sample');
 
 .top_header {
   background: #FFFFFF;
-  box-shadow: 0px 0px 9px 1px rgba(200, 202, 222, 0.2);
-  border-radius: 10px;
-  //opacity: 0.6;
-  height: 50px;
-  width: 98%;
+  height: 100%;
+  width: 100%;
   margin: auto;
   position: relative;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  font-size: 24px;
+  color: black;
 }
 
 .header_text {
@@ -123,22 +125,22 @@ const local_page_type = ref('sample');
   color: #0A48C6;
 
   position: relative;
-  top: 2px;
+  //top: 2px;
 }
 
 .top_menu_switchText_class_close {
-  font-size: 20px;
+  //font-size: 20px;
   color: #FF5151;
   margin-right: 10px;
   position: relative;
-  top: 2px;
+  //top: 2px;
 }
 
 .top_menu_switchText_class_open {
-  font-size: 20px;
+  //font-size: 20px;
   color: #67C23A;
   margin-right: 10px;
   position: relative;
-  top: 2px;
+  //top: 2px;
 }
 </style>

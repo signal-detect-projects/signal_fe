@@ -14,63 +14,75 @@
 <!--第一行-->
 <div id="line_header">
 </div>
+<div class="main_new_div">
+    <div class="left_new_div">
+        <div class="line1">
+            <!--    分类表格-->
+            <div id="cat_table" class="">
+            </div>
+            <!--    柱状图-->
+            <div class="bar_wrapper" style="">
+                <div id="prps_chart_title_id" class="prps_chart_title">PRPS图谱-通道1</div>
+                <div id="bar_chart" class="">
+                </div>
+            </div>
 
-<div class="line1">
-    <!--    分类表格-->
-    <div id="cat_table" class="my_bg_white my_boder_radius ">
-    </div>
-    <!--    分时图-->
-    <div id="time_chart" class="my_bg_white my_boder_radius">
-        <div class="time_chart_title">趋势图</div>
-        <div class="cname_left_block">
-            <div class="cname1 cname">
-                <div class="cname_div">
-                    <div class="text_icon">
-                        <img src="./image/TD1.png">
-                    </div>
-                    <p class="cname_text">通道1</p>
-                </div>
-            </div>
-            <div class="cname1 cname">
-                <div class="cname_div">
-                    <div class="text_icon">
-                        <img src="./image/TD1.png">
-                    </div>
-                    <p class="cname_text">通道2</p>
-                </div>
-            </div>
-            <div class="cname1 cname">
-                <div class="cname_div">
-                    <div class="text_icon">
-                        <img src="./image/TD1.png">
-                    </div>
-                    <p class="cname_text">通道3</p>
-                </div>
-            </div>
-            <div class="cname1 cname">
-                <div class="cname_div">
-                    <div class="text_icon">
-                        <img src="./image/TD1.png">
-                    </div>
-                    <p class="cname_text">通道4</p>
-                </div>
-            </div>
         </div>
-        <div id="time_echarts"></div>
+        <!--第二行-->
+        <div class="line2">
+
+            <!--    分时图-->
+            <div id="time_chart" class="">
+                <div class="time_chart_title">趋势图</div>
+                <div class="cname_left_block">
+                    <div class="cname1 cname">
+                        <div class="cname_div">
+                            <div class="text_icon">
+                                <img src="./image/TD1.png">
+                            </div>
+                            <p class="cname_text">通道1</p>
+                        </div>
+                    </div>
+                    <div class="cname1 cname">
+                        <div class="cname_div">
+                            <div class="text_icon">
+                                <img src="./image/TD1.png">
+                            </div>
+                            <p class="cname_text">通道2</p>
+                        </div>
+                    </div>
+                    <div class="cname1 cname">
+                        <div class="cname_div">
+                            <div class="text_icon">
+                                <img src="./image/TD1.png">
+                            </div>
+                            <p class="cname_text">通道3</p>
+                        </div>
+                    </div>
+                    <div class="cname1 cname">
+                        <div class="cname_div">
+                            <div class="text_icon">
+                                <img src="./image/TD1.png">
+                            </div>
+                            <p class="cname_text">通道4</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="time_echarts"></div>
+            </div>
+            <!--    热力图-->
+            <div class="hot_chart_wrapper">
+                <div id="prpd_chart_title_id" class="prpd_chart_title">PRPD图谱-通道1</div>
+                <div id="hot_chart" class=" ">
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
-<!--第二行-->
-<div class="line2">
-    <!--    柱状图-->
-    <div id="prps_chart_title_id" class="prps_chart_title">PRPS图谱-通道1</div>
-    <div id="prpd_chart_title_id" class="prpd_chart_title">PRPD图谱-通道1</div>
-    <div id="bar_chart" class="my_bg_white my_boder_radius">
-    </div>
-    <!--    热力图-->
-    <div id="hot_chart" class="my_bg_white my_boder_radius">
-    </div>
-    <!--    数据图-->
-    <div id="data_chart" class="my_bg_white my_boder_radius">
+    <div class="right_new_div">
+        <!--    数据图-->
+        <div id="data_chart" class="my_bg_white">
+        </div>
     </div>
 </div>
 <div id="form_dialog"></div>
@@ -434,11 +446,11 @@
     }
 
 
-    // setTimeout(() => {
-    //     setPageType('see');
-    //     // refresh_stat_data()
-    //     fetch_data();
-    // }, 100)
+    setTimeout(() => {
+        setPageType('sample');
+        // refresh_stat_data()
+        fetch_data();
+    }, 100)
 
     // function loop() {
     //     refresh_time_chart();
