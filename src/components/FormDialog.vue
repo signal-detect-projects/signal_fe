@@ -1,7 +1,7 @@
 <template>
   <el-dialog
       v-model="centerDialogVisible"
-      width="70%"
+      width="80%"
       align-center
       :show-close="false"
   >
@@ -15,24 +15,25 @@
       </div>
     </template>
     <div class="form_left_div">
-      <div class="left_top_wave_block">
-        <el-form-item label="设备IP">
-          <el-col :span="6">
-            <el-input v-model="form.ip"/>
-          </el-col>
-          <el-col :span="1">
-          </el-col>
-          <el-col :span="4">
-            <el-button @click="test_btn" type="primary" color="#7D7D7D">连接</el-button>
-          </el-col>
-          <span style="font-size: x-small;color: #3978F8">{{ connectMessage }}</span>
-        </el-form-item>
-        <el-form-item label="采集事件名称">
-          <el-col :span="21">
-            <el-input v-model="form.name" :disabled="!query_ip_status"/>
-          </el-col>
-        </el-form-item>
-
+      <div class="left_top_wave_block my_input_color">
+        <el-form :model="form" label-width="120px" :label-position="labelPosition">
+          <el-form-item label="设置IP" style="word-spacing: 2px !important;">
+            <el-col :span="6">
+              <el-input v-model="form.ip"/>
+            </el-col>
+            <el-col :span="1">
+            </el-col>
+            <el-col :span="4">
+              <el-button @click="test_btn" type="primary" color="#7D7D7D">连接</el-button>
+            </el-col>
+            <span style="font-size: x-small;color: #3978F8">{{ connectMessage }}</span>
+          </el-form-item>
+          <el-form-item label="采集事件名称">
+            <el-col>
+              <el-input v-model="form.name" :disabled="!query_ip_status" style="width: 505px !important;"/>
+            </el-col>
+          </el-form-item>
+        </el-form>
       </div>
 
       <div id="channel_prop">
@@ -116,8 +117,8 @@
       </div>
 
 
-      <el-form :model="form" label-width="120px" :label-position="labelPosition">
-        <div class="channel_group_div">
+      <div class="channel_group_div my_input_color">
+        <el-form :model="form" label-width="120px" :label-position="labelPosition">
           <el-form-item label="通道一" class="channel_text_space">
             <el-input v-model="form.channel1Name" :disabled="!query_ip_status" color="#3978F8"/>
           </el-form-item>
@@ -130,38 +131,45 @@
           <el-form-item label="通道四" style="position: relative;left: -20px" class="channel_text_space">
             <el-input v-model="form.channel4Name" :disabled="!query_ip_status"/>
           </el-form-item>
-        </div>
-        <el-form-item label="说明" style="letter-spacing: 17px">
-          <el-col :span="21">
-            <el-input v-model="form.note" :disabled="!query_ip_status"/>
-          </el-col>
-        </el-form-item>
-        <!--      通道属性设置-->
 
-      </el-form>
+        </el-form>
+
+      </div>
+      <div class="new_note_div my_input_color">
+        <span class="new_note_text">说明</span>
+        <div class="note_input_wrapper">
+          <el-input v-model="form.note" :disabled="!query_ip_status"/>
+        </div>
+
+      </div>
 
 
     </div>
 
     <div class="form_right_div">
-      <el-form-item label="选择触发源">
-        <el-radio-group v-model="form.line_channel" :disabled="!query_ip_status">
-          <el-radio label="1" name="通道1">通道1</el-radio>
-          <el-radio label="2" name="通道2">通道2</el-radio>
-          <el-radio label="3" name="通道3">通道3</el-radio>
-          <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
-        </el-radio-group>
-      </el-form-item>
+      <div style="padding-left: 20px">
+        <el-form-item label="选择触发源">
+          <el-radio-group v-model="form.line_channel" :disabled="!query_ip_status">
+            <el-radio label="1" name="通道1">通道1</el-radio>
+            <el-radio label="2" name="通道2">通道2</el-radio>
+            <el-radio label="3" name="通道3">通道3</el-radio>
+            <el-radio label="4" :disabled="true" name="通道4">通道4</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </div>
       <div id="form_line_chart"></div>
     </div>
 
     <template #footer>
-      <span class="dialog-footer">
+      <div class="dialog-footer">
+        <div
+            style="position: absolute;width:20%;height: 20px;left: 40%;top: -20px;background: #EEEEEE;z-index: 99 "></div>
         <el-button type="primary" @click="okFunc"
                    style="min-width: 100px;min-height: 40px;font-size: 24px"
                    :disabled="!query_ip_status"
-                   color="#7D7D7D">确定</el-button>
-      </span>
+                   color="#7D7D7D">确定
+        </el-button>
+      </div>
     </template>
   </el-dialog>
 </template>
@@ -187,7 +195,7 @@ const form = reactive({
   channelStateList: ["0", "0", "0", "0"],
   note: ""
 })
-const centerDialogVisible = ref(true);//TODO_XX
+const centerDialogVisible = ref(false);//TODO_XX
 
 const closeDialog = function () {
   centerDialogVisible.value = false;
@@ -297,7 +305,7 @@ const createFormLine = () => {
         },
         handle: {
           show: true,
-          margin: -470,
+          margin: -572,
           color: '#3978F8'
         }
       },
@@ -455,44 +463,77 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 //  background-color: #67C23A;
 //}
 
+.el-dialog .form_left_div .el-button {
+  border-radius: 15px;
+}
+
+.el-dialog__footer .el-button {
+  border-radius: 10px;
+}
+
 .channel_text_space {
   letter-spacing: 16px;
 }
 
+.dialog-footer {
+  clear: both;
+  //border: 1px solid black;
+  margin: 0 auto;
+  //display: block;
+  width: 100px;
+  height: 60px;
+  z-index: 99;
+  background: #EEEEEE;
+  position: absolute;
+  bottom: 0px;
+  left: calc(50% - 65px);
+
+  .el-button {
+    margin: auto !important;
+  }
+}
+
 .dialog-footer button:first-child {
-  margin-right: 10px;
+  margin-left: 20px;
 }
 
 .form_left_div {
+  border-right: 2px solid #BFBFBF;
   width: 49%;
   overflow: hidden;
   float: left;
-  height: 530px;
+  height: 580px;
   padding: 20px;
 
   .left_top_wave_block {
     //margin-left: 80px;
-
+    .el-form-item label {
+      width: 104px !important;
+      text-align: center !important;
+    }
   }
 }
 
 #form_line_chart {
-  width: 80%;
+  width: 94%;
   height: 400px;
   //border: 1px solid blue;
   margin: auto;
-  border: 1px solid black;
+  //border: 1px solid black;
   box-shadow: 3px 3px 12px 0px rgba(228, 228, 228, 0.5);
   border-radius: 10px;
 
   canvas {
     width: 100%;
+    height: 100%;
   }
 }
 
 .channel_group_div {
   //display: flex;
   height: 100px;
+  margin-top: 20px;
+
 
   .el-form-item {
     width: 50%;
@@ -510,31 +551,27 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 }
 
 .el-form-item__label {
-  max-width: 104px;
-  //text-align: justify;
-  //text-align-last: justify;
-  //display: flex;
-  //display: block;
-  //justify-content: space-evenly;
+  max-width: 120px !important;
   word-spacing: 30px !important;
+  //font-size: 16px !important;
+  font-weight: 550 !important;
 }
 
-//.el-button {
-//  width: 40px !important;
-//}
 
 .form_right_div {
+  //border: 1px solid black;
   width: 49%;
   overflow: hidden;
   float: right;
-  height: 600px;
+  height: 548px;
   padding: 20px;
-  border-left: 2px solid #BFBFBF ;
 }
 
 #channel_prop {
   width: 90%;
-  margin: auto;
+  //margin: auto;
+  margin-top: 40px;
+  margin-bottom: 40px;
 
   .el-radio-group {
     background: #E5E5E5 !important;
@@ -563,6 +600,10 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   }
 }
 
+.my_input_color .el-input__wrapper {
+  background-color: #E5E5E5 !important;
+}
+
 .el-input-number .el-input__wrapper {
   padding-right: 20px !important;
   padding-left: 0 !important;
@@ -577,8 +618,6 @@ watch(centerDialogVisible, (newValue, oldValue) => {
 }
 
 .channel_radio_block {
-  /*width: 100px;*/
-  //background-color: var(--blue-backgroud);
   background-color: #F3F3FA;
   display: inline-block;
   position: relative;
@@ -600,7 +639,7 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   height: 0;
   border: 10px solid transparent;
   /*border-top: 10px solid red;*/
-  border-top: 10px solid #d9ecff;
+  border-top: 10px solid #E5E5E5;
 }
 
 
@@ -651,10 +690,39 @@ watch(centerDialogVisible, (newValue, oldValue) => {
   display: flex;
   align-items: center;
   position: relative;
-
 }
 
-//.el-dialog__header {
-//  display: none !important;
-//}
+.new_note_div {
+  .new_note_text {
+    display: inline-block;
+    width: 104px;
+    font-weight: 550 !important;
+    letter-spacing: 16px;
+  }
+
+  .note_input_wrapper {
+    display: inline-block;
+    width: 75.5%;
+    position: relative;
+
+  }
+}
+
+.el-progress-bar__outer {
+
+  background-color: #DAE1EA !important;
+}
+
+.el-input-number {
+  .el-input-number__decrease {
+    background: #E1E1E2 !important;
+    color: white !important;
+  }
+
+  .el-input-number__increase {
+    background: #BCBCBC !important;
+    color: white !important;
+  }
+}
+
 </style>
